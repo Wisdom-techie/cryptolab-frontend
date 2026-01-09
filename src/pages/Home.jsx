@@ -1,6 +1,6 @@
 import "./Home.css";
 import MarketTabs from "../components/market/MarketTabs";
-import InfoCards from "../components/info/InfoCards";
+import InfoCards from "../components/Info/InfoCards";
 import FAQ from "../components/faq/FAQ";
 import { useNavigate } from "react-router-dom";
 
