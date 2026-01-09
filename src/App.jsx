@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Navbar from "./components/navbar/Navbar";
+import Navbar from './components/navbar/navbar'
 import Footer from "./components/footer/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Auth from "./pages/Auth";
