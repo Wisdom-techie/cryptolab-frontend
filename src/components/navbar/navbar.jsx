@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "./Navbar.css";
+import "./navbar.css";
 
 export default function Navbar({ isPublic = false }) {
   const [theme, setTheme] = useState("dark");
