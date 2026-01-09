@@ -1,0 +1,210 @@
+/* ================== MARKET SECTION ================== */
+.market-section {
+  padding: 3rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.market-section h2 {
+  color: #fff;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* ================== MARKET TABLE ================== */
+.market-table {
+  background: #1a1a2e;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.market-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1.5fr 1.5fr;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: #0f0f1e;
+  border-bottom: 1px solid #333;
+}
+
+.market-header span {
+  color: #888;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ================== MARKET ROW ================== */
+.market-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1.5fr 1.5fr;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.market-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.market-row:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.market-row:hover::before {
+  transform: scaleY(1);
+}
+
+.market-row:last-child {
+  border-bottom: none;
+}
+
+/* ================== COIN INFO ================== */
+.coin {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.coin img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.coin div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.coin strong {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.coin small {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+/* ================== PRICE & CHANGES ================== */
+.price {
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.positive {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.negative {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* ================== CHART CELL ================== */
+.chart-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sparkline {
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.market-row:hover .sparkline {
+  opacity: 1;
+}
+
+/* ================== MARKET CAP & VOLUME ================== */
+.market-cap,
+.volume {
+  color: #ddd;
+  font-size: 0.95rem;
+}
+
+/* ================== RESPONSIVE ================== */
+@media (max-width: 1200px) {
+  .market-header,
+  .market-row {
+    grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1.5fr;
+  }
+
+  .volume {
+    display: none;
+  }
+
+  .market-header span:last-child {
+    display: none;
+  }
+}
+
+@media (max-width: 992px) {
+  .market-header,
+  .market-row {
+    grid-template-columns: 2fr 1.5fr 1fr 1.5fr;
+  }
+
+  .chart-cell {
+    display: none;
+  }
+
+  .market-header span:nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .market-section {
+    padding: 2rem 1rem;
+  }
+
+  .market-header,
+  .market-row {
+    grid-template-columns: 2fr 1.5fr 1fr;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .market-cap {
+    display: none;
+  }
+
+  .market-header span:nth-child(5) {
+    display: none;
+  }
+
+  .coin img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .coin strong {
+    font-size: 0.9rem;
+  }
+
+  .coin small {
+    font-size: 0.75rem;
+  }
+}

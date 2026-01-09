@@ -1,0 +1,428 @@
+/* ================== MODAL OVERLAY ================== */
+.coin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ================== MODAL ================== */
+.coin-modal {
+  background: #1a1a2e;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.3s ease;
+  border: 1px solid #333;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollbar */
+.coin-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.coin-modal::-webkit-scrollbar-track {
+  background: #0f0f1e;
+}
+
+.coin-modal::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 10px;
+}
+
+/* ================== CLOSE BUTTON ================== */
+.coin-modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  color: #888;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coin-modal-close:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* ================== MODAL HEADER ================== */
+.coin-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.coin-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.coin-modal-title img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #0f0f1e;
+  padding: 6px;
+}
+
+.coin-modal-title h2 {
+  color: #fff;
+  font-size: 1.75rem;
+  margin: 0 0 0.25rem 0;
+}
+
+.coin-symbol {
+  color: #888;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.coin-modal-price {
+  text-align: right;
+}
+
+.price-main {
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.price-change {
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.price-change.positive {
+  color: #10b981;
+}
+
+.price-change.negative {
+  color: #ef4444;
+}
+
+.price-diff {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* ================== CHART ================== */
+.coin-modal-chart {
+  padding: 2rem;
+  background: #0f0f1e;
+}
+
+.coin-chart {
+  width: 100%;
+  height: auto;
+}
+
+/* ================== STATS ================== */
+.coin-modal-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 2rem;
+  background: #1a1a2e;
+}
+
+.stat-card {
+  background: #0f0f1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stat-label {
+  color: #888;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* ================== TABS ================== */
+.coin-modal-tabs {
+  display: flex;
+  border-bottom: 1px solid #333;
+  padding: 0 2rem;
+  background: #1a1a2e;
+}
+
+.coin-modal-tabs button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #888;
+  padding: 1.25rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.coin-modal-tabs button:hover {
+  color: #fff;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.coin-modal-tabs button.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
+}
+
+/* ================== TAB CONTENT ================== */
+.coin-modal-content {
+  padding: 2rem;
+  min-height: 200px;
+}
+
+.tab-content {
+  animation: fadeInContent 0.3s ease;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================== BALANCE DISPLAY ================== */
+.balance-display {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.balance-item {
+  background: #0f0f1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.balance-label {
+  color: #888;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balance-value {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.balance-usd {
+  color: #667eea;
+  font-size: 1rem;
+}
+
+/* ================== ACTION BUTTONS ================== */
+.action-btn {
+  width: 100%;
+  padding: 1.25rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+
+.action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+}
+
+.action-btn.secondary {
+  background: transparent;
+  border: 2px solid #667eea;
+  color: #667eea;
+}
+
+.action-btn.secondary:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+/* ================== TRADE INFO ================== */
+.trade-info {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.trade-info p {
+  color: #ddd;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.trade-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.feature {
+  background: #0f0f1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.feature:hover {
+  border-color: #667eea;
+  transform: translateY(-3px);
+}
+
+.feature-icon {
+  font-size: 2rem;
+}
+
+.feature span:last-child {
+  color: #ddd;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* ================== RESPONSIVE ================== */
+@media (max-width: 768px) {
+  .coin-modal {
+    max-width: 100%;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
+  .coin-modal-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+
+  .coin-modal-price {
+    text-align: left;
+  }
+
+  .price-main {
+    font-size: 1.5rem;
+  }
+
+  .coin-modal-chart {
+    padding: 1.5rem;
+  }
+
+  .coin-modal-stats {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+  }
+
+  .coin-modal-tabs {
+    padding: 0 1rem;
+  }
+
+  .coin-modal-tabs button {
+    padding: 1rem 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .coin-modal-tabs button svg {
+    display: none;
+  }
+
+  .coin-modal-content {
+    padding: 1.5rem;
+  }
+
+  .balance-display {
+    grid-template-columns: 1fr;
+  }
+
+  .trade-features {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,141 @@
+.footer {
+  background: #000;
+  color: #e5e7eb;
+  border-top: 1px solid #1e293b;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 60px 40px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+}
+
+.footer-brand h3 {
+  font-size: 22px;
+  letter-spacing: 3px;
+  margin-bottom: 14px;
+  color: #22c55e;
+}
+
+.footer-brand p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #9ca3af;
+}
+
+.footer-links h4 {
+  font-size: 14px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.footer-links a {
+  display: block;
+  font-size: 14px;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: #22c55e;
+}
+
+.footer-bottom {
+  border-top: 1px solid #1e293b;
+  text-align: center;
+  padding: 20px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+  }
+}
+.footer {
+  background: #0b0f1a;
+  color: #fff;
+  padding: 3rem 1.5rem 1.5rem;
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+.footer-brand p {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.footer-links h4 {
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-links a {
+  display: block;
+  color: #9ca3af;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.footer-links a:hover {
+  color: #fff;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+/* 🔽 MOBILE ACCORDION */
+@media (max-width: 768px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-links .links {
+    display: none;
+    margin-top: 0.5rem;
+  }
+
+  .footer-links.open .links {
+    display: block;
+  }
+
+  .toggle-icon {
+    font-size: 1.2rem;
+  }
+}
+
+/* 🔼 DESKTOP */
+@media (min-width: 769px) {
+  .toggle-icon {
+    display: none;
+  }
+
+  .footer-links .links {
+    display: block !important;
+  }
+}

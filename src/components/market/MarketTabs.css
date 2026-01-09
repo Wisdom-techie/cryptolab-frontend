@@ -1,0 +1,68 @@
+.market-tabs {
+  padding: 1.5rem;
+  background: #0b0f1a;
+  color: #fff;
+}
+
+.tabs-header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.tabs-header button {
+  background: #111827;
+  border: 1px solid #1f2937;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  color: #9ca3af;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.tabs-header button.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.tabs-header button:hover {
+  color: #fff;
+}
+/* Show More Button Styles */
+
+.load-more {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.load-more button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.load-more button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.load-more button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.load-more button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.5);
+}

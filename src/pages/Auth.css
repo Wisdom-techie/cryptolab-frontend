@@ -1,0 +1,582 @@
+* {
+  box-sizing: border-box;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  background: #0b0f1a;
+}
+
+/* LEFT IMAGE SIDE */
+.auth-left {
+  flex: 1;
+  background-image: url("https://images.unsplash.com/photo-1639762681485-074b7f938ba0");
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 3rem;
+  border-radius: 16px;
+  text-align: center;
+  color: #fff;
+}
+
+.auth-overlay h1 {
+  font-size: 3rem;
+  letter-spacing: 4px;
+}
+
+.auth-overlay p {
+  margin-top: 1rem;
+  color: #d1d5db;
+}
+
+/* RIGHT FORM SIDE */
+.auth-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #111827;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  color: #fff;
+}
+
+.auth-card h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Inputs */
+.auth-card input[type="email"],
+.auth-card input[type="password"] {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #1f2937;
+  background: #0f172a;
+  color: #fff;
+  margin-bottom: 1rem;
+}
+
+.auth-card input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* Agreement */
+.auth-agreement {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  margin-bottom: 1.2rem;
+}
+
+.auth-agreement p {
+  line-height: 1.4;
+}
+
+.auth-agreement a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+/* Button */
+.auth-card button {
+  width: 100%;
+  padding: 0.75rem;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-card button:hover {
+  background: #1d4ed8;
+}
+
+/* Switch */
+.auth-switch {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.auth-switch span {
+  color: #3b82f6;
+  cursor: pointer;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .auth-left {
+    display: none;
+  }
+
+  .auth-wrapper {
+    justify-content: center;
+  }
+}
+/* SUCCESS POPUP */
+.auth-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.auth-popup-card {
+  background: #111827;
+  padding: 1.5rem 2.5rem;
+  border-radius: 12px;
+  color: #22c55e;
+  font-size: 1.1rem;
+  font-weight: 600;
+  animation: popup 0.4s ease;
+}
+
+@keyframes popup {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+/* Error message */
+.auth-error {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-bottom: 0.8rem;
+}
+
+/* Disabled button */
+.auth-card button.disabled {
+  background: #374151;
+  cursor: not-allowed;
+}
+/* Auth card adjustments */
+.auth-card {
+  width: 100%;
+  max-width: 500px;
+}
+
+.auth-card input,
+.auth-card select {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  background: #16213e;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.auth-card input:focus,
+.auth-card select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+/* Multi-step indicator */
+.auth-steps {
+  display: flex;
+  gap: 2rem;
+  margin-top: 3rem;
+  justify-content: center;
+}
+
+.auth-steps .step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.auth-steps .step.active {
+  color: #fff;
+}
+
+.auth-steps .step span {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.auth-steps .step.active span {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Form subtitle */
+.auth-subtitle {
+  color: #999;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Input row for side-by-side inputs */
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.input-row input {
+  margin-bottom: 0;
+}
+
+/* Phone input group */
+.phone-input-group {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 0.5rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.phone-code-select {
+  padding: 0.8rem;
+  background: #16213e;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+
+.phone-number-input {
+  padding: 0.8rem;
+  background: #16213e;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+
+/* Select dropdowns */
+.auth-card select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 3rem;
+}
+
+.auth-card select option {
+  background: #16213e;
+  color: #fff;
+  padding: 0.5rem;
+}
+
+/* Auth agreement checkbox */
+.auth-agreement {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  align-items: flex-start;
+}
+
+.auth-agreement input[type="checkbox"] {
+  width: auto;
+  margin: 0.3rem 0 0 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.auth-agreement p {
+  margin: 0;
+  color: #ddd;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.auth-agreement a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+.auth-agreement a:hover {
+  text-decoration: underline;
+}
+
+/* Forgot password link */
+.auth-forgot {
+  text-align: right;
+  margin-bottom: 1rem;
+  margin-top: -0.5rem;
+}
+
+.auth-forgot a {
+  color: #667eea;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.auth-forgot a:hover {
+  color: #764ba2;
+}
+
+/* Button group */
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.auth-buttons button {
+  flex: 1;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.auth-buttons button.disabled {
+  background: #555;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.back-btn {
+  background: transparent !important;
+  border: 2px solid #667eea !important;
+  color: #667eea !important;
+}
+
+.back-btn:hover {
+  background: rgba(102, 126, 234, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+/* Single submit button (when no back button) */
+.auth-card > button {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.auth-card > button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.auth-card > button.disabled {
+  background: #555;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.auth-card > button.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Auth switch */
+.auth-switch {
+  text-align: center;
+  color: #ddd;
+  font-size: 0.95rem;
+  margin-top: 1.5rem;
+}
+
+.auth-switch span {
+  color: #667eea;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.auth-switch span:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* Error message */
+.auth-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 0.8rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .input-row input {
+    margin-bottom: 1rem;
+  }
+
+  .phone-input-group {
+    grid-template-columns: 1fr;
+  }
+
+  .phone-code-select,
+  .phone-number-input {
+    margin-bottom: 1rem;
+  }
+
+  .auth-steps {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .auth-card {
+    max-width: 100%;
+  }
+}
+/* ================== FORGOT PASSWORD STYLES ================== */
+/* Add these to your Auth.css file */
+
+/* Back Link */
+.back-link {
+  background: transparent;
+  border: none;
+  color: #667eea;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* Resend Code */
+.resend-code {
+  text-align: center;
+  color: #888;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.resend-code span {
+  color: #667eea;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.resend-code span:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* Success Message */
+.success-message {
+  text-align: center;
+  padding: 2rem;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #059669);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 0 auto 1.5rem;
+  animation: successPop 0.5s ease;
+}
+
+@keyframes successPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-message h3 {
+  color: #fff;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.success-message p {
+  color: #888;
+  font-size: 1rem;
+}
