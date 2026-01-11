@@ -5,6 +5,7 @@ import "./navbar.css";
 export default function Navbar({ isPublic = false }) {
   const [theme, setTheme] = useState("dark");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const navigate = useNavigate();
   const isAuthenticated = localStorage.getItem("isAuth") === "true";
 
@@ -27,17 +28,33 @@ export default function Navbar({ isPublic = false }) {
       if (showProfileMenu && !e.target.closest('.profile-dropdown-container')) {
         setShowProfileMenu(false);
       }
+      if (showMobileMenu && !e.target.closest('.mobile-menu') && !e.target.closest('.hamburger-btn')) {
+        setShowMobileMenu(false);
+      }
     };
 
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [showProfileMenu]);
+  }, [showProfileMenu, showMobileMenu]);
 
   const handleLogout = () => {
     localStorage.removeItem("isAuth");
     localStorage.removeItem("userData");
     setShowProfileMenu(false);
     navigate("/");
+  };
+
+  const handleMobileNavClick = (path) => {
+    setShowMobileMenu(false);
+    if (path.startsWith('#')) {
+      if (window.location.pathname === "/") {
+        document.getElementById(path.slice(1))?.scrollIntoView({ behavior: "smooth" });
+      } else {
+        navigate("/");
+      }
+    } else {
+      navigate(path);
+    }
   };
 
   return (
@@ -49,7 +66,7 @@ export default function Navbar({ isPublic = false }) {
         </Link>
       </div>
 
-      {/* Center */}
+      {/* Center - Desktop Only */}
       <nav className="nav-center">
         {isPublic ? (
           // PUBLIC NAVBAR
@@ -72,7 +89,6 @@ export default function Navbar({ isPublic = false }) {
             <Link to="/buy-crypto">Buy Crypto</Link>
             <Link to="/dashboard">Dashboard</Link>
             <Link to="/trade" className="pro-link">Trade PRO 🔒</Link>
-            
           </>
         )}
       </nav>
@@ -84,6 +100,16 @@ export default function Navbar({ isPublic = false }) {
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         >
           {theme === "dark" ? "🌙" : "☀️"}
+        </button>
+
+        {/* Hamburger Menu Button - Mobile Only */}
+        <button 
+          className="hamburger-btn"
+          onClick={() => setShowMobileMenu(!showMobileMenu)}
+        >
+          <span className={showMobileMenu ? 'active' : ''}></span>
+          <span className={showMobileMenu ? 'active' : ''}></span>
+          <span className={showMobileMenu ? 'active' : ''}></span>
         </button>
 
         {isPublic ? (
@@ -187,6 +213,26 @@ export default function Navbar({ isPublic = false }) {
           </div>
         )}
       </div>
+
+      {/* Mobile Menu */}
+      {showMobileMenu && (
+        <div className="mobile-menu">
+          {isPublic ? (
+            <>
+              <a onClick={() => handleMobileNavClick('#markets')}>Markets</a>
+              <a onClick={() => handleMobileNavClick('/auth')}>Trade</a>
+              <a onClick={() => handleMobileNavClick('#')}>Learn</a>
+            </>
+          ) : (
+            <>
+              <a onClick={() => handleMobileNavClick('/home')}>Markets</a>
+              <a onClick={() => handleMobileNavClick('/buy-crypto')}>Buy Crypto</a>
+              <a onClick={() => handleMobileNavClick('/dashboard')}>Dashboard</a>
+              <a onClick={() => handleMobileNavClick('/trade')} className="pro-link">Trade PRO 🔒</a>
+            </>
+          )}
+        </div>
+      )}
     </header>
   );
 }
