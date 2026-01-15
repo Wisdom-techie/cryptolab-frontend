@@ -5,7 +5,7 @@ export default function CustomerSupport() {
   const [isExpanded, setIsExpanded] = useState(false);
   
   // Replace with your actual Telegram link
-  const TELEGRAM_LINK = 'https://t.me/yourusername'; // Change this!
+  const TELEGRAM_LINK = 'https://t.me/crylab_1'; // Change this!
   
   const handleTelegramClick = () => {
     window.open(TELEGRAM_LINK, '_blank');
