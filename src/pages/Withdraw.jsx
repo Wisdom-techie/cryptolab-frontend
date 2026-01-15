@@ -1,5 +1,6 @@
 import "./Withdraw.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { cryptoAPI } from "../../utils/api";
 
 // Crypto assets with withdrawal info
 const cryptoAssets = [
@@ -65,12 +66,41 @@ const cryptoAssets = [
   }
 ];
 
+const MIN_WITHDRAWAL_USD = 500; // Minimum withdrawal in USD
+
 export default function Withdraw() {
   const [selectedAsset, setSelectedAsset] = useState(cryptoAssets[0]);
   const [walletAddress, setWalletAddress] = useState("");
   const [amount, setAmount] = useState("");
   const [network, setNetwork] = useState(selectedAsset.network);
   const [step, setStep] = useState(1); // 1: Form, 2: Confirm, 3: Processing, 4: Success
+  const [cryptoPrices, setCryptoPrices] = useState({});
+  const [loadingPrices, setLoadingPrices] = useState(true);
+
+  // Fetch crypto prices on component mount
+  useEffect(() => {
+    fetchCryptoPrices();
+  }, []);
+
+  const fetchCryptoPrices = async () => {
+    try {
+      const response = await cryptoAPI.getLivePrices();
+      setCryptoPrices(response.data.prices);
+      setLoadingPrices(false);
+    } catch (error) {
+      console.error("Failed to fetch crypto prices:", error);
+      setLoadingPrices(false);
+    }
+  };
+
+  const getCurrentPrice = (symbol) => {
+    return cryptoPrices[symbol]?.price || 0;
+  };
+
+  const calculateUsdValue = (assetSymbol, amount) => {
+    const price = getCurrentPrice(assetSymbol);
+    return price * parseFloat(amount || 0);
+  };
 
   const calculateFee = () => {
     return selectedAsset.fee;
@@ -79,6 +109,11 @@ export default function Withdraw() {
   const calculateTotal = () => {
     const amountNum = parseFloat(amount) || 0;
     return Math.max(0, amountNum - calculateFee());
+  };
+
+  const calculateTotalUsdValue = () => {
+    const total = calculateTotal();
+    return calculateUsdValue(selectedAsset.symbol, total);
   };
 
   const handleAssetSelect = (asset) => {
@@ -104,6 +139,14 @@ export default function Withdraw() {
       alert(`Minimum withdrawal is ${selectedAsset.minWithdraw} ${selectedAsset.symbol}`);
       return;
     }
+    
+    // Check USD minimum ($500)
+    const usdValue = calculateTotalUsdValue();
+    if (usdValue < MIN_WITHDRAWAL_USD) {
+      alert(`Minimum withdrawal amount is $${MIN_WITHDRAWAL_USD} USD. Your withdrawal is worth $${usdValue.toFixed(2)} USD.`);
+      return;
+    }
+    
     if (parseFloat(amount) > selectedAsset.balance) {
       alert("Insufficient balance");
       return;
@@ -135,6 +178,9 @@ export default function Withdraw() {
             <div className="withdraw-header">
               <h1>Withdraw Cryptocurrency</h1>
               <p>Transfer your crypto to an external wallet</p>
+              <div className="minimum-notice">
+                ⚠️ Minimum withdrawal: <strong>${MIN_WITHDRAWAL_USD} USD</strong>
+              </div>
             </div>
 
             <div className="withdraw-grid">
@@ -171,6 +217,11 @@ export default function Withdraw() {
                   <div>
                     <h3>{selectedAsset.name}</h3>
                     <p>Available: {selectedAsset.balance} {selectedAsset.symbol}</p>
+                    {!loadingPrices && (
+                      <p className="current-price">
+                        Current Price: ${getCurrentPrice(selectedAsset.symbol).toLocaleString()}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -213,6 +264,14 @@ export default function Withdraw() {
                     Min: {selectedAsset.minWithdraw} {selectedAsset.symbol} | 
                     Available: {selectedAsset.balance} {selectedAsset.symbol}
                   </p>
+                  {amount && !loadingPrices && (
+                    <p className={`usd-value ${calculateUsdValue(selectedAsset.symbol, amount) < MIN_WITHDRAWAL_USD ? 'error' : ''}`}>
+                      ≈ ${calculateUsdValue(selectedAsset.symbol, amount).toFixed(2)} USD
+                      {calculateUsdValue(selectedAsset.symbol, amount) < MIN_WITHDRAWAL_USD && (
+                        <span className="min-warning"> (Below ${MIN_WITHDRAWAL_USD} minimum)</span>
+                      )}
+                    </p>
+                  )}
                 </div>
 
                 {/* Fee Summary */}
@@ -229,6 +288,14 @@ export default function Withdraw() {
                     <span>You'll Receive</span>
                     <span>{calculateTotal().toFixed(8)} {selectedAsset.symbol}</span>
                   </div>
+                  {amount && !loadingPrices && (
+                    <div className="fee-row usd-total">
+                      <span>USD Value</span>
+                      <span className={calculateTotalUsdValue() < MIN_WITHDRAWAL_USD ? 'error' : ''}>
+                        ${calculateTotalUsdValue().toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <button className="withdraw-btn" onClick={handleContinue}>
@@ -243,7 +310,7 @@ export default function Withdraw() {
                   </svg>
                   <div>
                     <strong>Important:</strong> Always verify the wallet address and network before 
-                    confirming. Withdrawals cannot be reversed.
+                    confirming. Withdrawals cannot be reversed. Minimum withdrawal: ${MIN_WITHDRAWAL_USD} USD.
                   </div>
                 </div>
               </div>
@@ -290,6 +357,11 @@ export default function Withdraw() {
                 <span className="confirm-label">You'll Receive</span>
                 <span className="confirm-value">{calculateTotal().toFixed(8)} {selectedAsset.symbol}</span>
               </div>
+
+              <div className="confirm-row">
+                <span className="confirm-label">USD Value</span>
+                <span className="confirm-value">${calculateTotalUsdValue().toFixed(2)}</span>
+              </div>
             </div>
 
             <div className="confirm-actions">
@@ -331,6 +403,10 @@ export default function Withdraw() {
               <div className="detail-item">
                 <span>Amount</span>
                 <strong>{calculateTotal().toFixed(8)} {selectedAsset.symbol}</strong>
+              </div>
+              <div className="detail-item">
+                <span>USD Value</span>
+                <strong>${calculateTotalUsdValue().toFixed(2)}</strong>
               </div>
               <div className="detail-item">
                 <span>Network</span>

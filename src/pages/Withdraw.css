@@ -635,3 +635,53 @@
     max-width: 100%;
   }
 }
+
+
+
+.minimum-notice {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  color: #ffc107;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.minimum-notice strong {
+  color: #ffd54f;
+}
+
+.current-price {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 0.25rem;
+}
+
+.usd-value {
+  font-size: 0.9rem;
+  color: #888;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.usd-value.error {
+  color: #e74c3c;
+}
+
+.min-warning {
+  font-weight: 600;
+  color: #e74c3c;
+}
+
+.fee-summary .usd-total {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+.fee-summary .usd-total span.error {
+  color: #e74c3c;
+}
