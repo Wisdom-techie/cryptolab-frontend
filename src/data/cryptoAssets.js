@@ -3,7 +3,7 @@ export const cryptoAssets = [
   {
     name: "Bitcoin",
     symbol: "BTC",
-    price: 93286.07,
+    price: 95643.82,
     change: 0.32,
     marketCap: "$1.74T",
     volume: "$8.56B",
