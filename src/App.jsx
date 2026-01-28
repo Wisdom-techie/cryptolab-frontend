@@ -1,8 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { CryptoPriceProvider } from './contexts/CryptoPriceContext';
 import Navbar from './components/navbar/navbar'
 import Footer from './components/footer/footer'
 import CustomerSupport from './components/support/CustomerSupport';
 import ProtectedRoute from "./components/ProtectedRoute";
+import PriceTest from "./components/PriceTest";
 import Auth from "./pages/Auth";
 import Home from "./pages/Home";
 import BuyCrypto from "./pages/BuyCrypto";
@@ -36,85 +38,97 @@ function ProtectedLayout({ children }) {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* PUBLIC ROUTES */}
-        <Route 
-          path="/" 
-          element={
-            <PublicLayout>
-              <LandingPage />
-            </PublicLayout>
-          } 
-        />
+    <CryptoPriceProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* PUBLIC ROUTES */}
+          <Route 
+            path="/" 
+            element={
+              <PublicLayout>
+                <LandingPage />
+              </PublicLayout>
+            } 
+          />
 
-        {/* AUTH PAGES - No navbar/footer */}
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+          {/* TEST ROUTE - For debugging API */}
+          <Route 
+            path="/test-prices" 
+            element={
+              <PublicLayout>
+                <PriceTest />
+              </PublicLayout>
+            } 
+          />
 
-        {/* PROTECTED ROUTES */}
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <ProtectedLayout>
-                <Home />
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
+          {/* AUTH PAGES - No navbar/footer */}
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        <Route
-          path="/buy-crypto"
-          element={
-            <ProtectedRoute>
-              <ProtectedLayout>
-                <BuyCrypto />
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
+          {/* PROTECTED ROUTES */}
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <Home />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <ProtectedLayout>
-                <Dashboard />
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/buy-crypto"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <BuyCrypto />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/withdraw"
-          element={
-            <ProtectedRoute>
-              <ProtectedLayout>
-                <Withdraw />
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <Dashboard />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/trade"
-          element={
-            <ProtectedRoute>
-              <ProtectedLayout>
-                <Trade />
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/withdraw"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <Withdraw />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Catch all */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route
+            path="/trade"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <Trade />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
 
-      {/* Customer Support Widget - Shows on ALL pages */}
-      <CustomerSupport />
-    </BrowserRouter>
+          {/* Catch all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+
+        {/* Customer Support Widget - Shows on ALL pages */}
+        <CustomerSupport />
+      </BrowserRouter>
+    </CryptoPriceProvider>
   );
 }
 

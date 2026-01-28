@@ -1,4 +1,4 @@
-// Shared crypto assets data for entire app
+// Initial static data (will be replaced by live prices)
 export const cryptoAssets = [
   {
     name: "Bitcoin",
@@ -182,6 +182,15 @@ export const cryptoAssets = [
   },
 ];
 
+// Helper to format large numbers
+const formatLargeNumber = (num) => {
+  if (num >= 1e12) return `$${(num / 1e12).toFixed(2)}T`;
+  if (num >= 1e9) return `$${(num / 1e9).toFixed(2)}B`;
+  if (num >= 1e6) return `$${(num / 1e6).toFixed(2)}M`;
+  if (num >= 1e3) return `$${(num / 1e3).toFixed(2)}K`;
+  return `$${num.toFixed(2)}`;
+};
+
 // Helper to format price display
 export const formatPrice = (price) => {
   if (price < 0.01) return `$${price.toFixed(8)}`;
@@ -189,9 +198,28 @@ export const formatPrice = (price) => {
   return `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
+// Update crypto assets with live prices
+export const updateCryptoAssetsWithLivePrices = (livePrices) => {
+  return cryptoAssets.map(asset => {
+    const liveData = livePrices[asset.symbol];
+    
+    if (liveData) {
+      return {
+        ...asset,
+        price: liveData.price,
+        change: liveData.change24h,
+        marketCap: liveData.marketCap ? formatLargeNumber(liveData.marketCap) : asset.marketCap,
+        volume: liveData.volume24h ? formatLargeNumber(liveData.volume24h) : asset.volume,
+      };
+    }
+    
+    return asset;
+  });
+};
+
 // Helper to format for MarketTabs display
-export const formatForMarketTabs = () => {
-  return cryptoAssets.map(asset => ({
+export const formatForMarketTabs = (assets = cryptoAssets) => {
+  return assets.map(asset => ({
     ...asset,
     price: formatPrice(asset.price),
     icon: asset.logo
