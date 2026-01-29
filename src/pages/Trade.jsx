@@ -1,18 +1,80 @@
 import "./Trade.css";
 import { useState, useEffect } from "react";
-
-const cryptoPairs = [
-  { symbol: "BTC/USDT", price: 95434.95, change: 2.34, high: 96500.00, low: 94200.00, volume: "2.34B" },
-  { symbol: "ETH/USDT", price: 3191.26, change: 1.56, high: 3250.00, low: 3100.00, volume: "1.23B" },
-  { symbol: "BNB/USDT", price: 915.94, change: -0.89, high: 925.00, low: 910.00, volume: "456M" },
-  { symbol: "SOL/USDT", price: 134.44, change: 3.21, high: 138.00, low: 132.00, volume: "789M" },
-  { symbol: "XRP/USDT", price: 0.6234, change: 5.67, high: 0.65, low: 0.60, volume: "890M" },
-  { symbol: "DOGE/USDT", price: 0.134, change: 1.04, high: 0.14, low: 0.13, volume: "633M" },
-  { symbol: "ADA/USDT", price: 0.42, change: -1.88, high: 0.44, low: 0.41, volume: "289M" },
-  { symbol: "MATIC/USDT", price: 0.114, change: -0.84, high: 0.12, low: 0.11, volume: "241M" },
-];
+import { useCryptoPrices } from "../contexts/CryptoPriceContext";
 
 export default function Trade() {
+  // Get live prices from context
+  const { getPrice, getChange, isUsingLiveData, loading: pricesLoading } = useCryptoPrices();
+
+  // Build crypto pairs with live prices
+  const buildCryptoPairs = () => [
+    { 
+      symbol: "BTC/USDT", 
+      price: getPrice('BTC'), 
+      change: getChange('BTC'), 
+      high: getPrice('BTC') * 1.02, 
+      low: getPrice('BTC') * 0.98, 
+      volume: "2.34B" 
+    },
+    { 
+      symbol: "ETH/USDT", 
+      price: getPrice('ETH'), 
+      change: getChange('ETH'), 
+      high: getPrice('ETH') * 1.02, 
+      low: getPrice('ETH') * 0.98, 
+      volume: "1.23B" 
+    },
+    { 
+      symbol: "BNB/USDT", 
+      price: getPrice('BNB'), 
+      change: getChange('BNB'), 
+      high: getPrice('BNB') * 1.02, 
+      low: getPrice('BNB') * 0.98, 
+      volume: "456M" 
+    },
+    { 
+      symbol: "SOL/USDT", 
+      price: getPrice('SOL'), 
+      change: getChange('SOL'), 
+      high: getPrice('SOL') * 1.02, 
+      low: getPrice('SOL') * 0.98, 
+      volume: "789M" 
+    },
+    { 
+      symbol: "XRP/USDT", 
+      price: getPrice('XRP'), 
+      change: getChange('XRP'), 
+      high: getPrice('XRP') * 1.02, 
+      low: getPrice('XRP') * 0.98, 
+      volume: "890M" 
+    },
+    { 
+      symbol: "DOGE/USDT", 
+      price: getPrice('DOGE'), 
+      change: getChange('DOGE'), 
+      high: getPrice('DOGE') * 1.02, 
+      low: getPrice('DOGE') * 0.98, 
+      volume: "633M" 
+    },
+    { 
+      symbol: "ADA/USDT", 
+      price: getPrice('ADA'), 
+      change: getChange('ADA'), 
+      high: getPrice('ADA') * 1.02, 
+      low: getPrice('ADA') * 0.98, 
+      volume: "289M" 
+    },
+    { 
+      symbol: "MATIC/USDT", 
+      price: getPrice('MATIC'), 
+      change: getChange('MATIC'), 
+      high: getPrice('MATIC') * 1.02, 
+      low: getPrice('MATIC') * 0.98, 
+      volume: "241M" 
+    },
+  ];
+
+  const [cryptoPairs, setCryptoPairs] = useState(buildCryptoPairs());
   const [selectedPair, setSelectedPair] = useState(cryptoPairs[0]);
   const [orderType, setOrderType] = useState("limit");
   const [side, setSide] = useState("buy");
@@ -21,6 +83,21 @@ export default function Trade() {
   const [total, setTotal] = useState("");
   const [livePrice, setLivePrice] = useState(selectedPair.price);
   
+  // Update crypto pairs when prices change
+  useEffect(() => {
+    if (!pricesLoading) {
+      const updatedPairs = buildCryptoPairs();
+      setCryptoPairs(updatedPairs);
+      
+      // Update selected pair with new price
+      const updatedSelectedPair = updatedPairs.find(p => p.symbol === selectedPair.symbol);
+      if (updatedSelectedPair) {
+        setSelectedPair(updatedSelectedPair);
+        setLivePrice(updatedSelectedPair.price);
+      }
+    }
+  }, [getPrice, getChange, pricesLoading]);
+
   // Get user balance from localStorage (will be from backend later)
   const [userBalance, setUserBalance] = useState(() => {
     const saved = localStorage.getItem("userBalance");
@@ -50,7 +127,7 @@ export default function Trade() {
 
   const [activeOrderTab, setActiveOrderTab] = useState("open");
 
-  // Simulate live price updates
+  // Simulate live price micro-fluctuations (small movements)
   useEffect(() => {
     const interval = setInterval(() => {
       setLivePrice(prev => {
@@ -294,6 +371,27 @@ export default function Trade() {
         <div className="trade-header">
           <div className="pair-info">
             <h1>{selectedPair.symbol}</h1>
+            
+            {/* Live Price Indicator */}
+            {!pricesLoading && isUsingLiveData && (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem',
+                marginBottom: '0.5rem',
+                fontSize: '0.85rem',
+                color: '#10b981'
+              }}>
+                <span style={{ 
+                  width: '8px', 
+                  height: '8px', 
+                  borderRadius: '50%', 
+                  background: '#10b981' 
+                }}></span>
+                Live prices
+              </div>
+            )}
+            
             <div className="pair-stats">
               <div className="stat">
                 <span className="stat-label">Last Price</span>
@@ -302,7 +400,7 @@ export default function Trade() {
               <div className="stat">
                 <span className="stat-label">24h Change</span>
                 <span className={`stat-value ${selectedPair.change >= 0 ? 'positive' : 'negative'}`}>
-                  {selectedPair.change >= 0 ? '+' : ''}{selectedPair.change}%
+                  {selectedPair.change >= 0 ? '+' : ''}{selectedPair.change.toFixed(2)}%
                 </span>
               </div>
               <div className="stat">
@@ -335,7 +433,7 @@ export default function Trade() {
                   <div className="pair-name">{pair.symbol}</div>
                   <div className="pair-price">${pair.price.toLocaleString()}</div>
                   <div className={`pair-change ${pair.change >= 0 ? 'positive' : 'negative'}`}>
-                    {pair.change >= 0 ? '+' : ''}{pair.change}%
+                    {pair.change >= 0 ? '+' : ''}{pair.change.toFixed(2)}%
                   </div>
                 </div>
               ))}

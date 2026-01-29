@@ -1,16 +1,29 @@
 import "./BuyCrypto.css";
 import { useState } from "react";
 import BuyModal from "../components/BuyModal";
-import { cryptoAssets, formatPrice } from "../data/cryptoAssets";
+import { useCryptoPrices } from "../contexts/CryptoPriceContext";
 
 export default function BuyCrypto() {
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("marketCap");
-  const [viewMode, setViewMode] = useState("grid"); // grid or list
+  const [viewMode, setViewMode] = useState("grid");
+
+  // Get live prices from context
+  const { getAllAssets, loading, isUsingLiveData } = useCryptoPrices();
+
+  // Get all markets with live prices
+  const allMarkets = getAllAssets();
+
+  // Helper to format price
+  const formatPrice = (price) => {
+    if (price < 0.01) return `$${price.toFixed(8)}`;
+    if (price < 1) return `$${price.toFixed(4)}`;
+    return `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   // Filter and sort assets
-  const filteredAssets = cryptoAssets
+  const filteredAssets = allMarkets
     .filter(asset => 
       asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       asset.symbol.toLowerCase().includes(searchTerm.toLowerCase())
@@ -29,10 +42,28 @@ export default function BuyCrypto() {
         <div className="header-content">
           <h1>Buy Cryptocurrency</h1>
           <p>Purchase digital assets securely with multiple payment options</p>
+          
+          {!loading && isUsingLiveData && (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              marginTop: '0.5rem',
+              fontSize: '0.85rem',
+              color: '#10b981'
+            }}>
+              <span style={{ 
+                width: '8px', 
+                height: '8px', 
+                borderRadius: '50%', 
+                background: '#10b981' 
+              }}></span>
+              Live prices
+            </div>
+          )}
         </div>
 
         <div className="header-controls">
-          {/* Search Bar */}
           <div className="search-bar">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/>
@@ -46,7 +77,6 @@ export default function BuyCrypto() {
             />
           </div>
 
-          {/* Sort Dropdown */}
           <select 
             className="sort-select"
             value={sortBy}
@@ -57,7 +87,6 @@ export default function BuyCrypto() {
             <option value="name">Name</option>
           </select>
 
-          {/* View Toggle */}
           <div className="view-toggle">
             <button 
               className={viewMode === "grid" ? "active" : ""}
@@ -89,42 +118,50 @@ export default function BuyCrypto() {
         </div>
       </div>
 
-      <div className={`asset-${viewMode}`}>
-        {filteredAssets.map((asset) => (
-          <div className="asset-card" key={asset.symbol}>
-            <div className="asset-card-header">
-              <img src={asset.logo} alt={asset.name} className="asset-logo" />
-              <div className="asset-info">
-                <h3>{asset.symbol}</h3>
-                <span className="asset-name">{asset.name}</span>
+      {loading && (
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#9ca3af' }}>
+          Loading live prices...
+        </div>
+      )}
+
+      {!loading && (
+        <div className={`asset-${viewMode}`}>
+          {filteredAssets.map((asset) => (
+            <div className="asset-card" key={asset.symbol}>
+              <div className="asset-card-header">
+                <img src={asset.logo} alt={asset.name} className="asset-logo" />
+                <div className="asset-info">
+                  <h3>{asset.symbol}</h3>
+                  <span className="asset-name">{asset.name}</span>
+                </div>
               </div>
-            </div>
 
-            <div className="asset-price">
-              <span className="price">{formatPrice(asset.price)}</span>
-              <span className={`change ${asset.change >= 0 ? 'positive' : 'negative'}`}>
-                {asset.change >= 0 ? '+' : ''}{asset.change.toFixed(2)}%
-              </span>
-            </div>
-
-            <div className="asset-stats">
-              <div className="stat">
-                <span className="stat-label">Market Cap</span>
-                <span className="stat-value">{asset.marketCap}</span>
+              <div className="asset-price">
+                <span className="price">{formatPrice(asset.price)}</span>
+                <span className={`change ${asset.change >= 0 ? 'positive' : 'negative'}`}>
+                  {asset.change >= 0 ? '+' : ''}{asset.change.toFixed(2)}%
+                </span>
               </div>
+
+              <div className="asset-stats">
+                <div className="stat">
+                  <span className="stat-label">Market Cap</span>
+                  <span className="stat-value">{asset.marketCap}</span>
+                </div>
+              </div>
+
+              <button 
+                className="buy-btn"
+                onClick={() => setSelectedAsset(asset)}
+              >
+                Buy {asset.symbol}
+              </button>
             </div>
+          ))}
+        </div>
+      )}
 
-            <button 
-              className="buy-btn"
-              onClick={() => setSelectedAsset(asset)}
-            >
-              Buy {asset.symbol}
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {filteredAssets.length === 0 && (
+      {!loading && filteredAssets.length === 0 && (
         <div className="no-results">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8"/>

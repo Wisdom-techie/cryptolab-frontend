@@ -1,15 +1,16 @@
 import "./Withdraw.css";
 import { useState, useEffect } from "react";
+import { useCryptoPrices } from "../contexts/CryptoPriceContext";
 
+const MIN_WITHDRAWAL_USD = 500; // Minimum withdrawal in USD
 
-// Crypto assets with withdrawal info
-const cryptoAssets = [
+// Crypto assets with withdrawal info (balances will come from backend later)
+const cryptoAssetsBase = [
   {
     name: "Bitcoin",
     symbol: "BTC",
     logo: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
     balance: 0.00000000,
-    usdValue: 0.00,
     minWithdraw: 0.001,
     fee: 0.0005,
     network: "BTC"
@@ -19,7 +20,6 @@ const cryptoAssets = [
     symbol: "ETH",
     logo: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
     balance: 0.00000000,
-    usdValue: 0.00,
     minWithdraw: 0.01,
     fee: 0.005,
     network: "ERC20"
@@ -29,7 +29,6 @@ const cryptoAssets = [
     symbol: "USDT",
     logo: "https://assets.coingecko.com/coins/images/325/large/Tether.png",
     balance: 0.00,
-    usdValue: 0.00,
     minWithdraw: 10,
     fee: 1,
     network: "TRC20"
@@ -39,7 +38,6 @@ const cryptoAssets = [
     symbol: "BNB",
     logo: "https://assets.coingecko.com/coins/images/825/large/binance-coin-logo.png",
     balance: 0.00000000,
-    usdValue: 0.00,
     minWithdraw: 0.01,
     fee: 0.0005,
     network: "BEP20"
@@ -49,7 +47,6 @@ const cryptoAssets = [
     symbol: "SOL",
     logo: "https://assets.coingecko.com/coins/images/4128/large/solana.png",
     balance: 0.00000000,
-    usdValue: 0.00,
     minWithdraw: 0.1,
     fee: 0.01,
     network: "SOL"
@@ -59,47 +56,38 @@ const cryptoAssets = [
     symbol: "ADA",
     logo: "https://assets.coingecko.com/coins/images/975/large/cardano.png",
     balance: 0.00000000,
-    usdValue: 0.00,
     minWithdraw: 10,
     fee: 1,
     network: "ADA"
   }
 ];
 
-const MIN_WITHDRAWAL_USD = 500; // Minimum withdrawal in USD
-
 export default function Withdraw() {
-  const [selectedAsset, setSelectedAsset] = useState(cryptoAssets[0]);
+  // Get live prices from context
+  const { getPrice, calculateUSD, loading: pricesLoading, isUsingLiveData } = useCryptoPrices();
+
+  const [cryptoAssets, setCryptoAssets] = useState(cryptoAssetsBase);
+  const [selectedAsset, setSelectedAsset] = useState(cryptoAssetsBase[0]);
   const [walletAddress, setWalletAddress] = useState("");
   const [amount, setAmount] = useState("");
   const [network, setNetwork] = useState(selectedAsset.network);
   const [step, setStep] = useState(1); // 1: Form, 2: Confirm, 3: Processing, 4: Success
-  const [cryptoPrices, setCryptoPrices] = useState({});
-  const [loadingPrices, setLoadingPrices] = useState(true);
 
-  // Fetch crypto prices on component mount
+  // Update assets with live prices and USD values
   useEffect(() => {
-    fetchCryptoPrices();
-  }, []);
-
-  const fetchCryptoPrices = async () => {
-    try {
-      const response = await cryptoAPI.getLivePrices();
-      setCryptoPrices(response.data.prices);
-      setLoadingPrices(false);
-    } catch (error) {
-      console.error("Failed to fetch crypto prices:", error);
-      setLoadingPrices(false);
-    }
-  };
+    const updatedAssets = cryptoAssetsBase.map(asset => ({
+      ...asset,
+      usdValue: calculateUSD(asset.symbol, asset.balance)
+    }));
+    setCryptoAssets(updatedAssets);
+  }, [calculateUSD]);
 
   const getCurrentPrice = (symbol) => {
-    return cryptoPrices[symbol]?.price || 0;
+    return getPrice(symbol);
   };
 
   const calculateUsdValue = (assetSymbol, amount) => {
-    const price = getCurrentPrice(assetSymbol);
-    return price * parseFloat(amount || 0);
+    return calculateUSD(assetSymbol, amount);
   };
 
   const calculateFee = () => {
@@ -181,6 +169,26 @@ export default function Withdraw() {
               <div className="minimum-notice">
                 ⚠️ Minimum withdrawal: <strong>${MIN_WITHDRAWAL_USD} USD</strong>
               </div>
+              
+              {/* Live Price Indicator */}
+              {!pricesLoading && isUsingLiveData && (
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '0.5rem',
+                  marginTop: '0.5rem',
+                  fontSize: '0.85rem',
+                  color: '#10b981'
+                }}>
+                  <span style={{ 
+                    width: '8px', 
+                    height: '8px', 
+                    borderRadius: '50%', 
+                    background: '#10b981' 
+                  }}></span>
+                  Live prices active
+                </div>
+              )}
             </div>
 
             <div className="withdraw-grid">
@@ -217,7 +225,7 @@ export default function Withdraw() {
                   <div>
                     <h3>{selectedAsset.name}</h3>
                     <p>Available: {selectedAsset.balance} {selectedAsset.symbol}</p>
-                    {!loadingPrices && (
+                    {!pricesLoading && (
                       <p className="current-price">
                         Current Price: ${getCurrentPrice(selectedAsset.symbol).toLocaleString()}
                       </p>
@@ -264,7 +272,7 @@ export default function Withdraw() {
                     Min: {selectedAsset.minWithdraw} {selectedAsset.symbol} | 
                     Available: {selectedAsset.balance} {selectedAsset.symbol}
                   </p>
-                  {amount && !loadingPrices && (
+                  {amount && !pricesLoading && (
                     <p className={`usd-value ${calculateUsdValue(selectedAsset.symbol, amount) < MIN_WITHDRAWAL_USD ? 'error' : ''}`}>
                       ≈ ${calculateUsdValue(selectedAsset.symbol, amount).toFixed(2)} USD
                       {calculateUsdValue(selectedAsset.symbol, amount) < MIN_WITHDRAWAL_USD && (
@@ -288,7 +296,7 @@ export default function Withdraw() {
                     <span>You'll Receive</span>
                     <span>{calculateTotal().toFixed(8)} {selectedAsset.symbol}</span>
                   </div>
-                  {amount && !loadingPrices && (
+                  {amount && !pricesLoading && (
                     <div className="fee-row usd-total">
                       <span>USD Value</span>
                       <span className={calculateTotalUsdValue() < MIN_WITHDRAWAL_USD ? 'error' : ''}>
