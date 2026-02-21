@@ -144,4 +144,77 @@ exports.rejectWithdrawal = async (req, res) => {
     console.error('Reject withdrawal error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
+  // Add this to your adminController.js
+
+const User = require('../models/User');
+const Activity = require('../models/Activity');
+
+// @desc    Update user balances
+// @route   PUT /api/admin/users/:id/balances
+// @access  Admin
+exports.updateUserBalances = async (req, res) => {
+  try {
+    const { balances } = req.body;
+
+    if (!balances || typeof balances !== 'object') {
+      return res.status(400).json({ message: 'Invalid balances data' });
+    }
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Clear existing balances
+    user.balances.clear();
+
+    // Set new balances
+    Object.entries(balances).forEach(([asset, amount]) => {
+      if (amount > 0) {
+        user.balances.set(asset, parseFloat(amount));
+      }
+    });
+
+    await user.save();
+
+    // Log activity
+    await Activity.create({
+      user: user._id,
+      action: 'Balance Updated by Admin',
+      details: `Admin ${req.user.email} updated user balances`,
+      ipAddress: req.ip || req.connection.remoteAddress
+    });
+
+    res.json({
+      success: true,
+      message: 'User balances updated successfully',
+      balances: Object.fromEntries(user.balances)
+    });
+  } catch (error) {
+    console.error('Update user balances error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Get single user details
+// @route   GET /api/admin/users/:id
+// @access  Admin
+exports.getUserDetails = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    console.error('Get user details error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
 };

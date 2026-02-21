@@ -6,17 +6,61 @@ export default function Navbar({ isPublic = false }) {
   const [theme, setTheme] = useState("dark");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
   const isAuthenticated = localStorage.getItem("isAuth") === "true";
 
-  // Get user data
-  const userData = isAuthenticated 
-    ? JSON.parse(localStorage.getItem("userData") || '{}')
-    : null;
+  // Load user data and keep it updated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const loadUserData = () => {
+        try {
+          const data = localStorage.getItem("userData");
+          if (data) {
+            const parsed = JSON.parse(data);
+            setUserData(parsed);
+            console.log('User data loaded:', parsed); // Debug
+          }
+        } catch (error) {
+          console.error('Failed to parse user data:', error);
+        }
+      };
 
-  const userInitials = userData?.firstName && userData?.lastName
-    ? `${userData.firstName[0]}${userData.lastName[0]}`.toUpperCase()
-    : "U";
+      // Load initially
+      loadUserData();
+
+      // Listen for storage changes (when data updates)
+      window.addEventListener('storage', loadUserData);
+      
+      // Custom event listener for same-tab updates
+      window.addEventListener('userDataUpdated', loadUserData);
+
+      return () => {
+        window.removeEventListener('storage', loadUserData);
+        window.removeEventListener('userDataUpdated', loadUserData);
+      };
+    }
+  }, [isAuthenticated]);
+
+  // Get user initials
+  const getUserInitials = () => {
+    if (!userData) return "U";
+    
+    const firstName = userData.firstName || userData.first_name || "";
+    const lastName = userData.lastName || userData.last_name || "";
+    
+    if (firstName && lastName) {
+      return `${firstName[0]}${lastName[0]}`.toUpperCase();
+    } else if (firstName) {
+      return firstName.substring(0, 2).toUpperCase();
+    } else if (userData.email) {
+      return userData.email.substring(0, 2).toUpperCase();
+    }
+    
+    return "U";
+  };
+
+  const userInitials = getUserInitials();
 
   useEffect(() => {
     document.body.setAttribute("data-theme", theme);
@@ -40,7 +84,9 @@ export default function Navbar({ isPublic = false }) {
   const handleLogout = () => {
     localStorage.removeItem("isAuth");
     localStorage.removeItem("userData");
+    localStorage.removeItem("token");
     setShowProfileMenu(false);
+    setUserData(null);
     navigate("/");
   };
 
@@ -89,6 +135,11 @@ export default function Navbar({ isPublic = false }) {
             <Link to="/buy-crypto">Buy Crypto</Link>
             <Link to="/dashboard">Dashboard</Link>
             <Link to="/trade" className="pro-link">Trade PRO 🔒</Link>
+            {userData?.role === 'admin' && (
+              <Link to="/admin" style={{ color: '#ef4444', fontWeight: 'bold' }}>
+                🔐 Admin
+              </Link>
+            )}
           </>
         )}
       </nav>
@@ -146,9 +197,9 @@ export default function Navbar({ isPublic = false }) {
                   </div>
                   <div className="profile-info">
                     <p className="profile-name">
-                      {userData?.firstName} {userData?.lastName}
+                      {userData?.firstName || userData?.first_name || 'User'} {userData?.lastName || userData?.last_name || ''}
                     </p>
-                    <p className="profile-email">{userData?.email}</p>
+                    <p className="profile-email">{userData?.email || 'No email'}</p>
                   </div>
                 </div>
 
@@ -196,6 +247,22 @@ export default function Navbar({ isPublic = false }) {
                     </svg>
                     Help & Support
                   </button>
+                  
+                  {userData?.role === 'admin' && (
+                    <button 
+                      onClick={() => {
+                        navigate("/admin");
+                        setShowProfileMenu(false);
+                      }}
+                      style={{ color: '#ef4444' }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                      </svg>
+                      Admin Panel
+                    </button>
+                  )}
                 </div>
 
                 <div className="profile-divider"></div>
@@ -229,6 +296,11 @@ export default function Navbar({ isPublic = false }) {
               <a onClick={() => handleMobileNavClick('/buy-crypto')}>Buy Crypto</a>
               <a onClick={() => handleMobileNavClick('/dashboard')}>Dashboard</a>
               <a onClick={() => handleMobileNavClick('/trade')} className="pro-link">Trade PRO 🔒</a>
+              {userData?.role === 'admin' && (
+                <a onClick={() => handleMobileNavClick('/admin')} style={{ color: '#ef4444' }}>
+                  🔐 Admin Panel
+                </a>
+              )}
             </>
           )}
         </div>

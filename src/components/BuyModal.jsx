@@ -84,7 +84,7 @@ export default function BuyModal({ asset, onClose }) {
   TRX: "TLpzvToontHSkSrzpHVeSc6cTzsNH16WbN",
   UNI: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
   ATOM: "cosmos123gy7ge4tyast0cqvhde67m2asmhny4gfjakva",
-  APT: "0x3a92d5dff963850f3b89998ea495459a63eb9a837fefc26f6a27bb8736735e1b0xxy2kgdygjrsqtzq2n0yrf2493p83k...",
+  APT: "0x3a92d5dff963850f3b89998ea495459a63eb9a837fefc26f6a27bb8736735e1b",
   OP: "0x2eb5529b22c6905fca919065232c7c1424284e13"
 };
  // Replace with your actual address
@@ -99,23 +99,29 @@ export default function BuyModal({ asset, onClose }) {
 
   // Confirmation timer
   useEffect(() => {
-    let interval;
-    if (confirmingDeposit) {
-      interval = setInterval(() => {
-        setConfirmationTime(prev => {
-          if (prev >= 60) {
-            // Simulate admin confirmation after 30-60 seconds
-            clearInterval(interval);
-            setConfirmingDeposit(false);
-            setStep(5); // Success
-            return 0;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [confirmingDeposit]);
+  let interval;
+  if (confirmingDeposit) {
+    interval = setInterval(() => {
+      setConfirmationTime(prev => {
+        if (prev >= 3600) { // Changed from 60 to 3600 (1 hour)
+          clearInterval(interval);
+          setConfirmingDeposit(false);
+          setStep(5); // Success
+          return 0;
+        }
+        return prev + 1;
+      });
+    }, 1000);
+  }
+  return () => clearInterval(interval);
+}, [confirmingDeposit]);
+
+const formatTime = (seconds) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
 
   const formatPrice = (price) => {
     if (price < 0.01) return price.toFixed(8);
@@ -391,27 +397,32 @@ export default function BuyModal({ asset, onClose }) {
 
         {/* STEP 4: CONFIRMING DEPOSIT */}
         {step === 4 && (
-          <div className="confirming-screen">
-            <div className="loading-spinner">
-              <svg viewBox="0 0 50 50">
-                <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" strokeWidth="4"/>
-              </svg>
-            </div>
-            <h3>Confirming Transaction</h3>
-            <p>Please wait while we verify your deposit...</p>
-            <p className="timer">Time elapsed: {confirmationTime}s</p>
-            <div className="confirming-details">
-              <div className="detail-row">
-                <span>Amount</span>
-                <span>{formatPrice(cryptoQty)} {asset.symbol}</span>
-              </div>
-              <div className="detail-row">
-                <span>Value</span>
-                <span>${amountNum.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-        )}
+  <div className="confirming-screen">
+    <div className="loading-spinner">
+      {/* ... spinner SVG ... */}
+    </div>
+    <h3>Transaction Submitted</h3>
+    <p>Your deposit is pending admin approval.</p>
+    <p className="timer">Submitted: {new Date().toLocaleString()}</p>
+    <div className="confirming-details">
+      <div className="detail-row">
+        <span>Amount</span>
+        <span>{formatPrice(cryptoQty)} {asset.symbol}</span>
+      </div>
+      <div className="detail-row">
+        <span>Value</span>
+        <span>${amountNum.toFixed(2)}</span>
+      </div>
+      <div className="detail-row">
+        <span>Status</span>
+        <span className="status-pending">⏳ Awaiting Approval</span>
+      </div>
+    </div>
+    <button className="modal-btn secondary" onClick={handleCloseFinal}>
+      Close
+    </button>
+  </div>
+)}
 
         {/* STEP 5: SUCCESS */}
         {step === 5 && (

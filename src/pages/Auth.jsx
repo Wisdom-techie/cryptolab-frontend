@@ -221,9 +221,15 @@ export default function Auth() {
       // Call backend API to register
       const response = await register(formData);
       
-      // Save token and user data
+      // Save token and user data - normalize field names (handle both camelCase and snake_case)
+      const userData = {
+        firstName: response.data.user.firstName || response.data.user.first_name || formData.firstName || '',
+        lastName: response.data.user.lastName || response.data.user.last_name || formData.lastName || '',
+        email: response.data.user.email || formData.email || '',
+        ...response.data.user
+      };
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userData', JSON.stringify(response.data.user));
+      localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('isAuth', 'true');
       
       // Show success popup
@@ -257,9 +263,15 @@ export default function Auth() {
         return;
       }
       
-      // Save token and user data
+      // Save token and user data - normalize field names (handle both camelCase and snake_case)
+      const userData = {
+        firstName: response.data.user.firstName || response.data.user.first_name || '',
+        lastName: response.data.user.lastName || response.data.user.last_name || '',
+        email: response.data.user.email || '',
+        ...response.data.user
+      };
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userData', JSON.stringify(response.data.user));
+      localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('isAuth', 'true');
       
       // Show success popup

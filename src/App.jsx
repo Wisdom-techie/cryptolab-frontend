@@ -13,6 +13,9 @@ import LandingPage from "./pages/LandingPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import Withdraw from "./pages/Withdraw";
 import Trade from "./pages/Trade";
+import AdminPanel from './pages/AdminPanel';
+import AdminRoute from './components/AdminRoute';
+
 
 // Layout for PUBLIC pages (navbar + footer)
 function PublicLayout({ children }) {
@@ -24,6 +27,16 @@ function PublicLayout({ children }) {
     </>
   );
 }
+<Route
+  path="/admin"
+  element={
+    <AdminRoute>
+      <ProtectedLayout>
+        <AdminPanel />
+      </ProtectedLayout>
+    </AdminRoute>
+  }
+/>
 
 // Layout for PROTECTED pages (navbar + footer)
 function ProtectedLayout({ children }) {

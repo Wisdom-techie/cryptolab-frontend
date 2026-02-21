@@ -97,3 +97,32 @@ app.listen(PORT, () => {
   console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
 });
+// routes/admin.js
+const express = require('express');
+const router = express.Router();
+const { protect, admin } = require('../middleware/auth');
+const adminController = require('../controllers/adminController');
+
+// Protect all admin routes
+router.use(protect);
+router.use(admin);
+
+// Users
+router.get('/users', adminController.getAllUsers);
+router.get('/users/:id', adminController.getUserDetails);
+router.put('/users/:id/balances', adminController.updateUserBalances);
+
+// Transactions
+router.get('/transactions', adminController.getAllTransactions);
+router.post('/deposits/:id/approve', adminController.approveDeposit);
+
+// Withdrawals
+router.get('/withdrawals/pending', adminController.getPendingWithdrawals);
+router.post('/withdrawals/:id/approve', adminController.approveWithdrawal);
+router.post('/withdrawals/:id/reject', adminController.rejectWithdrawal);
+
+module.exports = router;
+// server.js or app.js
+const adminRoutes = require('./routes/admin');
+
+app.use('/api/admin', adminRoutes);
