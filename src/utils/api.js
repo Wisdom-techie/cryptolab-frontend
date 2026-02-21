@@ -219,41 +219,74 @@ export const cryptoAPI = {
   }
 };
 
-// Auth API methods (for your backend when you build it)
+// Auth API methods - Configure your backend URL here
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+const authAxios = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Add token to requests
+authAxios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const authAPI = {
   register: async (userData) => {
-    console.log('📝 Registering user:', userData.email);
-    return {
-      data: {
-        token: 'demo_token_' + Date.now(),
-        user: {
-          id: Date.now(),
-          ...userData
-        }
-      }
-    };
+    try {
+      console.log('📝 Registering user:', userData.email);
+      const response = await authAxios.post('/api/auth/register', {
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        phoneCode: userData.phoneCode,
+        phoneNumber: userData.phoneNumber,
+        country: userData.country,
+        currency: userData.currency,
+        password: userData.password,
+        referralCode: userData.referralCode || null
+      });
+      console.log('✅ Registration successful');
+      return response;
+    } catch (error) {
+      console.error('❌ Registration error:', error);
+      throw error;
+    }
   },
 
   login: async (credentials) => {
-    console.log('🔑 Logging in user:', credentials.email);
-    return {
-      data: {
-        token: 'demo_token_' + Date.now(),
-        user: {
-          email: credentials.email,
-          firstName: 'Demo',
-          lastName: 'User'
-        }
-      }
-    };
+    try {
+      console.log('🔑 Logging in user:', credentials.email);
+      const response = await authAxios.post('/api/auth/login', {
+        email: credentials.email,
+        password: credentials.password
+      });
+      console.log('✅ Login successful');
+      return response;
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      throw error;
+    }
   },
 
   verify2FA: async (token, code) => {
-    return {
-      data: {
-        verified: true
-      }
-    };
+    try {
+      const response = await authAxios.post('/api/auth/verify-2fa', {
+        token,
+        code
+      });
+      return response;
+    } catch (error) {
+      console.error('❌ 2FA verification error:', error);
+      throw error;
+    }
   }
 };
 
