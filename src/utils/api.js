@@ -220,13 +220,14 @@ export const cryptoAPI = {
 };
 
 // Auth API methods - Configure your backend URL here
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://cryptolab-backend-5bqm.onrender.com';
 
 const authAxios = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  withCredentials: true
 });
 
 // Add token to requests
