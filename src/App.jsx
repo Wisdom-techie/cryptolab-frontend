@@ -4,6 +4,7 @@ import Navbar from './components/navbar/navbar'
 import Footer from './components/footer/footer'
 import CustomerSupport from './components/support/CustomerSupport';
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 import PriceTest from "./components/PriceTest";
 import Auth from "./pages/Auth";
 import Home from "./pages/Home";
@@ -13,6 +14,7 @@ import LandingPage from "./pages/LandingPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import Withdraw from "./pages/Withdraw";
 import Trade from "./pages/Trade";
+import AdminBalance from "./pages/AdminBalance";
 
 // Layout for PUBLIC pages (navbar + footer)
 function PublicLayout({ children }) {
@@ -118,6 +120,18 @@ function App() {
                   <Trade />
                 </ProtectedLayout>
               </ProtectedRoute>
+            }
+          />
+
+          {/* ADMIN ROUTES */}
+          <Route
+            path="/admin/balance"
+            element={
+              <AdminRoute>
+                <ProtectedLayout>
+                  <AdminBalance />
+                </ProtectedLayout>
+              </AdminRoute>
             }
           />
 
