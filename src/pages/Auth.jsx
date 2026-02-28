@@ -231,6 +231,10 @@ export default function Auth() {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('isAuth', 'true');
+      // Store user role for admin access
+      if (response.data.user.role) {
+        localStorage.setItem('role', response.data.user.role);
+      }
       
       // Show success popup
       setShowPopup(true);
@@ -273,6 +277,10 @@ export default function Auth() {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('isAuth', 'true');
+      // Store user role for admin access
+      if (response.data.user.role) {
+        localStorage.setItem('role', response.data.user.role);
+      }
       
       // Show success popup
       setShowPopup(true);
