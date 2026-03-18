@@ -15,6 +15,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Withdraw from "./pages/Withdraw";
 import Trade from "./pages/Trade";
 import AdminBalance from "./pages/AdminBalance";
+import AdminBalance from "./pages/AdminBalance";
 
 // Layout for PUBLIC pages (navbar + footer)
 function PublicLayout({ children }) {
