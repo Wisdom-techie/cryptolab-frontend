@@ -22,14 +22,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
-.then(() => console.log('✅ MongoDB Connected'))
-.catch((err) => console.error('❌ MongoDB Connection Error:', err));
-
-// Import and use routes only if they exist
+// Import and use routes
 try {
   const authRoutes = require('./routes/auth');
   app.use('/api/auth', authRoutes);
+  console.log('✅ Auth routes loaded');
 } catch (err) {
   console.log('⚠️ Auth routes not found - skipping');
 }
@@ -37,6 +37,7 @@ try {
 try {
   const userRoutes = require('./routes/user');
   app.use('/api/user', userRoutes);
+  console.log('✅ User routes loaded');
 } catch (err) {
   console.log('⚠️ User routes not found - skipping');
 }
@@ -44,6 +45,7 @@ try {
 try {
   const walletRoutes = require('./routes/wallet');
   app.use('/api/wallet', walletRoutes);
+  console.log('✅ Wallet routes loaded');
 } catch (err) {
   console.log('⚠️ Wallet routes not found - skipping');
 }
@@ -51,22 +53,41 @@ try {
 try {
   const tradeRoutes = require('./routes/trade');
   app.use('/api/trade', tradeRoutes);
+  console.log('✅ Trade routes loaded');
 } catch (err) {
   console.log('⚠️ Trade routes not found - skipping');
 }
 
-// These routes you already have
-const cryptoRoutes = require('./routes/crypto');
-const adminRoutes = require('./routes/admin');
+try {
+  const cryptoRoutes = require('./routes/crypto');
+  app.use('/api/crypto', cryptoRoutes);
+  console.log('✅ Crypto routes loaded');
+} catch (err) {
+  console.log('⚠️ Crypto routes not found - skipping');
+}
 
-app.use('/api/crypto', cryptoRoutes);
-app.use('/api/admin', adminRoutes);
+try {
+  const adminRoutes = require('./routes/admin');
+  app.use('/api/admin', adminRoutes);
+  console.log('✅ Admin routes loaded');
+} catch (err) {
+  console.log('⚠️ Admin routes not found - skipping');
+}
 
 // Health check
 app.get('/', (req, res) => {
   res.json({ 
     message: '🚀 Cryptolab API is running!',
     version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Health check for monitoring
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    uptime: process.uptime(),
     timestamp: new Date().toISOString()
   });
 });
@@ -97,32 +118,3 @@ app.listen(PORT, () => {
   console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
 });
-// routes/admin.js
-const express = require('express');
-const router = express.Router();
-const { protect, admin } = require('../middleware/auth');
-const adminController = require('../controllers/adminController');
-
-// Protect all admin routes
-router.use(protect);
-router.use(admin);
-
-// Users
-router.get('/users', adminController.getAllUsers);
-router.get('/users/:id', adminController.getUserDetails);
-router.put('/users/:id/balances', adminController.updateUserBalances);
-
-// Transactions
-router.get('/transactions', adminController.getAllTransactions);
-router.post('/deposits/:id/approve', adminController.approveDeposit);
-
-// Withdrawals
-router.get('/withdrawals/pending', adminController.getPendingWithdrawals);
-router.post('/withdrawals/:id/approve', adminController.approveWithdrawal);
-router.post('/withdrawals/:id/reject', adminController.rejectWithdrawal);
-
-module.exports = router;
-// server.js or app.js
-const adminRoutes = require('./routes/admin');
-
-app.use('/api/admin', adminRoutes);
