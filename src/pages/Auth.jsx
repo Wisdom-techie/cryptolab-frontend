@@ -218,8 +218,11 @@ export default function Auth() {
     if (!validateStep2()) return;
     
     try {
-      // Call backend API to register
-      const response = await register(formData);
+      // Call backend API to register - ensure email is lowercase
+      const response = await register({
+        ...formData,
+        email: formData.email.toLowerCase().trim()
+      });
       
       // Save token and user data - normalize field names (handle both camelCase and snake_case)
       const userData = {
@@ -256,7 +259,7 @@ export default function Auth() {
     
     try {
       const response = await login({
-        email: formData.email,
+        email: formData.email.toLowerCase().trim(),
         password: formData.password
       });
       

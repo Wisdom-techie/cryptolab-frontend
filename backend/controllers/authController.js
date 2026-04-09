@@ -109,6 +109,7 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password, twoFactorCode } = req.body;
+    console.log('[LOGIN DEBUG] Received email:', email, 'Password exists:', !!password);
 
     // Validation
     if (!email || !password) {
@@ -118,9 +119,15 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Find user
-    const user = await User.findOne({ email: email.toLowerCase() });
+    // Find user - always use lowercase for consistency
+    const emailLower = email.toLowerCase().trim();
+    console.log('[LOGIN DEBUG] Searching for user with email:', emailLower);
+    
+    const user = await User.findOne({ email: emailLower });
+    console.log('[LOGIN DEBUG] User found:', !!user);
+    
     if (!user) {
+      console.log('[LOGIN DEBUG] No user found with email:', emailLower);
       return res.status(401).json({ 
         success: false,
         message: 'Invalid email or password' 
@@ -128,8 +135,12 @@ exports.login = async (req, res) => {
     }
 
     // Check password
+    console.log('[LOGIN DEBUG] Comparing passwords...');
     const isPasswordMatch = await user.comparePassword(password);
+    console.log('[LOGIN DEBUG] Password match result:', isPasswordMatch);
+    
     if (!isPasswordMatch) {
+      console.log('[LOGIN DEBUG] Password mismatch for user:', emailLower);
       return res.status(401).json({ 
         success: false,
         message: 'Invalid email or password' 
