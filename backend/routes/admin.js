@@ -44,4 +44,48 @@ router.put('/withdrawal/:id/approve', approveWithdrawal);
 // @access  Private/Admin
 router.put('/withdrawal/:id/reject', rejectWithdrawal);
 
+// @route   GET /api/admin/users/search
+// @desc    Search users by email or ID
+// @access  Private/Admin
+router.get('/users/search', async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) return res.status(400).json({ message: 'Search query required' });
+    
+    const User = require('../models/User');
+    const users = await User.find({
+      $or: [
+        { email: { $regex: q, $options: 'i' } },
+        { _id: q }
+      ]
+    }).select('id firstName lastName email balance');
+    
+    res.json({ users });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// @route   PUT /api/admin/users/:id/balance
+// @desc    Update user balance
+// @access  Private/Admin
+router.put('/users/:id/balance', async (req, res) => {
+  try {
+    const { newBalance, reason } = req.body;
+    const User = require('../models/User');
+    
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { balance: newBalance },
+      { new: true }
+    );
+    
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;
