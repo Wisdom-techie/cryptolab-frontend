@@ -16,6 +16,7 @@ import Withdraw from "./pages/Withdraw";
 import Trade from "./pages/Trade";
 import AdminBalance from "./pages/AdminBalance";
 
+// Layout for PUBLIC pages (navbar + footer)
 function PublicLayout({ children }) {
   return (
     <>
@@ -26,6 +27,7 @@ function PublicLayout({ children }) {
   );
 }
 
+// Layout for PROTECTED pages (navbar + footer)
 function ProtectedLayout({ children }) {
   return (
     <>
@@ -41,6 +43,7 @@ function App() {
     <CryptoPriceProvider>
       <BrowserRouter>
         <Routes>
+          {/* PUBLIC ROUTES */}
           <Route 
             path="/" 
             element={
@@ -50,6 +53,7 @@ function App() {
             } 
           />
 
+          {/* TEST ROUTE - For debugging API */}
           <Route 
             path="/test-prices" 
             element={
@@ -59,9 +63,11 @@ function App() {
             } 
           />
 
+          {/* AUTH PAGES - No navbar/footer */}
           <Route path="/auth" element={<Auth />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
+          {/* PROTECTED ROUTES */}
           <Route
             path="/home"
             element={
@@ -117,6 +123,7 @@ function App() {
             }
           />
 
+          {/* ADMIN ROUTES */}
           <Route
             path="/admin/balance"
             element={
@@ -128,9 +135,11 @@ function App() {
             }
           />
 
+          {/* Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
+        {/* Customer Support Widget - Shows on ALL pages */}
         <CustomerSupport />
       </BrowserRouter>
     </CryptoPriceProvider>
