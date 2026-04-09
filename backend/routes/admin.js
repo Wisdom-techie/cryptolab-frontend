@@ -58,9 +58,20 @@ router.get('/users/search', async (req, res) => {
         { email: { $regex: q, $options: 'i' } },
         { _id: q }
       ]
-    }).select('id firstName lastName email balance');
+    }).select('_id firstName lastName email balances');
     
-    res.json({ users });
+    // Map response to include 'id' field and default 'balance' to 0
+    const formattedUsers = users.map(user => ({
+      id: user._id,
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      balance: 0,
+      balances: user.balances || {}
+    }));
+    
+    res.json({ users: formattedUsers });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -74,16 +85,35 @@ router.put('/users/:id/balance', async (req, res) => {
     const { newBalance, reason } = req.body;
     const User = require('../models/User');
     
+    if (!newBalance || newBalance < 0) {
+      return res.status(400).json({ message: 'Valid balance amount required' });
+    }
+    
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { balance: newBalance },
+      { 'balances.USD': newBalance },
       { new: true }
     );
     
     if (!user) return res.status(404).json({ message: 'User not found' });
     
-    res.json({ success: true, user });
+    console.log('[ADMIN] Balance updated for:', user.email, 'New balance:', newBalance, 'Reason:', reason);
+    
+    res.json({ 
+      success: true,
+      message: 'Balance updated successfully',
+      user: {
+        id: user._id,
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        balance: 0,
+        balances: user.balances || {}
+      }
+    });
   } catch (err) {
+    console.error('[ADMIN BALANCE ERROR]', err);
     res.status(500).json({ message: err.message });
   }
 });
