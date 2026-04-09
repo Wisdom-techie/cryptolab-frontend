@@ -79,6 +79,7 @@ exports.register = async (req, res) => {
       token,
       user: {
         id: user._id,
+        _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
@@ -87,7 +88,9 @@ exports.register = async (req, res) => {
         country: user.country,
         currency: user.currency,
         referralCode: user.referralCode,
-        role: user.role
+        role: user.role,
+        balance: 0,
+        balances: {}
       }
     });
   } catch (error) {
@@ -172,6 +175,7 @@ exports.login = async (req, res) => {
       token,
       user: {
         id: user._id,
+        _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
@@ -184,7 +188,8 @@ exports.login = async (req, res) => {
         idVerified: user.idVerified,
         referralCode: user.referralCode,
         role: user.role,
-        balances: user.balances,
+        balance: 0,
+        balances: user.balances || {},
         lastLogin: user.lastLogin
       }
     });
