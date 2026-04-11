@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { cryptoAPI } from '../utils/api';
+import { getLivePrices } from '../utils/api';
 
 export default function PriceTest() {
   const [testResults, setTestResults] = useState([]);
