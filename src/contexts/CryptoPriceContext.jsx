@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { cryptoAPI } from '../utils/api';
+import { getLivePrices } from '../utils/api';
 import { cryptoAssets, updateCryptoAssetsWithLivePrices } from '../data/cryptoAssets';
 
 const CryptoPriceContext = createContext();
