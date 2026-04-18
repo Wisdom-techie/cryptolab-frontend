@@ -1,8 +1,19 @@
 import "./LandingPage.css";
 import { useNavigate } from "react-router-dom";
+import { useCryptoPrices } from "../contexts/CryptoPriceContext";
+
+const LANDING_COINS = [
+  { name: "Bitcoin", symbol: "BTC" },
+  { name: "Ethereum", symbol: "ETH" },
+  { name: "Solana", symbol: "SOL" },
+  { name: "Binance Coin", symbol: "BNB" },
+  { name: "Dogecoin", symbol: "DOGE" },
+  { name: "Cardano", symbol: "ADA" },
+];
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { getPrice, getChange, formatPrice, loading } = useCryptoPrices();
 
   return (
     <div className="landing-page">
@@ -46,25 +57,26 @@ export default function LandingPage() {
         </p>
 
         <div className="market-cards">
-          {[
-            { name: "Bitcoin", symbol: "BTC", price: "$95,434.95", change: "+0.32%", positive: true },
-            { name: "Ethereum", symbol: "ETH", price: "$3,191.26", change: "+0.17%", positive: true },
-            { name: "Solana", symbol: "SOL", price: "$134.44", change: "+1.16%", positive: true },
-            { name: "Binance Coin", symbol: "BNB", price: "$915.94", change: "+1.01%", positive: true },
-            { name: "Dogecoin", symbol: "DOGE", price: "$0.134", change: "+1.04%", positive: true },
-            { name: "Cardano", symbol: "ADA", price: "$0.42", change: "-1.88%", positive: false },
-          ].map((coin) => (
-            <div className="market-card" key={coin.symbol}>
-              <div className="coin-header">
-                <h3>{coin.symbol}</h3>
-                <span className={coin.positive ? "positive" : "negative"}>
-                  {coin.change}
-                </span>
+          {LANDING_COINS.map((coin) => {
+            const price = getPrice(coin.symbol);
+            const change = getChange(coin.symbol);
+            const positive = change >= 0;
+
+            return (
+              <div className="market-card" key={coin.symbol}>
+                <div className="coin-header">
+                  <h3>{coin.symbol}</h3>
+                  <span className={positive ? "positive" : "negative"}>
+                    {positive ? "+" : ""}{change.toFixed(2)}%
+                  </span>
+                </div>
+                <p className="coin-name">{coin.name}</p>
+                <p className="coin-price">
+                  {loading ? "Loading..." : formatPrice(price)}
+                </p>
               </div>
-              <p className="coin-name">{coin.name}</p>
-              <p className="coin-price">{coin.price}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <button 
