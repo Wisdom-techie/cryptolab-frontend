@@ -1,37 +1,29 @@
 const axios = require('axios');
 
-// CoinGecko API base URL
 const COINGECKO_API = process.env.COINGECKO_API_URL || 'https://api.coingecko.com/api/v3';
 
-// Map symbols to CoinGecko IDs
+// Simple in-memory cache
+let priceCache = null;
+let lastFetched = null;
+const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
+
 const COIN_IDS = {
-  BTC: 'bitcoin',
-  ETH: 'ethereum',
-  USDT: 'tether',
-  BNB: 'binancecoin',
-  SOL: 'solana',
-  USDC: 'usd-coin',
-  ADA: 'cardano',
-  TRX: 'tron',
-  DOGE: 'dogecoin',
-  MATIC: 'matic-network',
-  AVAX: 'avalanche-2',
-  LTC: 'litecoin',
-  DASH: 'dash',
-  SHIB: 'shiba-inu',
-  LINK: 'chainlink',
-  TON: 'the-open-network',
-  UNI: 'uniswap',
-  ATOM: 'cosmos',
-  APT: 'aptos',
-  OP: 'optimism'
+  BTC: 'bitcoin', ETH: 'ethereum', USDT: 'tether', BNB: 'binancecoin',
+  SOL: 'solana', USDC: 'usd-coin', ADA: 'cardano', TRX: 'tron',
+  DOGE: 'dogecoin', MATIC: 'matic-network', AVAX: 'avalanche-2', LTC: 'litecoin',
+  DASH: 'dash', SHIB: 'shiba-inu', LINK: 'chainlink', TON: 'the-open-network',
+  UNI: 'uniswap', ATOM: 'cosmos', APT: 'aptos', OP: 'optimism'
 };
 
 // @desc    Get live prices for all cryptos
 exports.getLivePrices = async (req, res) => {
   try {
+    // Return cache if still fresh
+    if (priceCache && lastFetched && (Date.now() - lastFetched < CACHE_DURATION)) {
+      return res.json({ success: true, prices: priceCache, cached: true });
+    }
+
     const ids = Object.values(COIN_IDS).join(',');
-    
     const response = await axios.get(`${COINGECKO_API}/simple/price`, {
       params: {
         ids,
@@ -42,9 +34,7 @@ exports.getLivePrices = async (req, res) => {
       }
     });
 
-    // Transform data to match our format
     const prices = {};
-    
     Object.entries(COIN_IDS).forEach(([symbol, id]) => {
       const data = response.data[id];
       if (data) {
@@ -58,16 +48,20 @@ exports.getLivePrices = async (req, res) => {
       }
     });
 
-    res.json({
-      success: true,
-      prices
-    });
+    // Save to cache
+    priceCache = prices;
+    lastFetched = Date.now();
+
+    res.json({ success: true, prices });
   } catch (error) {
     console.error('Get live prices error:', error.message);
-    res.status(500).json({ 
-      message: 'Failed to fetch crypto prices',
-      error: error.message 
-    });
+
+    // Return stale cache rather than failing
+    if (priceCache) {
+      return res.json({ success: true, prices: priceCache, cached: true, stale: true });
+    }
+
+    res.status(500).json({ message: 'Failed to fetch crypto prices', error: error.message });
   }
 };
 
@@ -109,10 +103,7 @@ exports.getSinglePrice = async (req, res) => {
     });
   } catch (error) {
     console.error('Get single price error:', error.message);
-    res.status(500).json({ 
-      message: 'Failed to fetch price',
-      error: error.message 
-    });
+    res.status(500).json({ message: 'Failed to fetch price', error: error.message });
   }
 };
 
@@ -120,7 +111,7 @@ exports.getSinglePrice = async (req, res) => {
 exports.getMarketOverview = async (req, res) => {
   try {
     const ids = Object.values(COIN_IDS).join(',');
-    
+
     const response = await axios.get(`${COINGECKO_API}/coins/markets`, {
       params: {
         vs_currency: 'usd',
@@ -149,16 +140,9 @@ exports.getMarketOverview = async (req, res) => {
       atl: coin.atl
     }));
 
-    res.json({
-      success: true,
-      markets
-    });
+    res.json({ success: true, markets });
   } catch (error) {
     console.error('Get market overview error:', error.message);
-    res.status(500).json({ 
-      message: 'Failed to fetch market data',
-      error: error.message 
-    });
+    res.status(500).json({ message: 'Failed to fetch market data', error: error.message });
   }
 };
-
