@@ -25,7 +25,7 @@ export const CryptoPriceProvider = ({ children }) => {
   const fetchPrices = async () => {
     try {
       console.log('🔄 Fetching live crypto prices...');
-      const response = await cryptoAPI.getLivePrices();
+      const response = await getLivePrices();
       
       const livePrices = response.data.prices;
       

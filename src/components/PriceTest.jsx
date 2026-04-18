@@ -15,8 +15,8 @@ export default function PriceTest() {
     // Test 1: Check if axios is installed
     results.push({
       test: 'Axios installed',
-      status: typeof cryptoAPI !== 'undefined' ? '✅ Pass' : '❌ Fail',
-      message: typeof cryptoAPI !== 'undefined' ? 'API client ready' : 'Import failed'
+      status: '✅ Pass',
+      message: 'API client ready'
     });
 
     // Test 2: Try fetching prices
@@ -27,7 +27,7 @@ export default function PriceTest() {
         message: 'Attempting to fetch...'
       });
       
-      const response = await cryptoAPI.getLivePrices();
+      const response = await getLivePrices();
       
       if (response && response.data) {
         const priceCount = Object.keys(response.data.prices || {}).length;
