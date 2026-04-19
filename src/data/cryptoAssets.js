@@ -193,26 +193,27 @@ const formatLargeNumber = (num) => {
 
 // Helper to format price display
 export const formatPrice = (price) => {
+  if (!price || isNaN(price)) return '$0.00';
   if (price < 0.01) return `$${price.toFixed(8)}`;
   if (price < 1) return `$${price.toFixed(4)}`;
-  return `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
 // Update crypto assets with live prices
 export const updateCryptoAssetsWithLivePrices = (livePrices) => {
   return cryptoAssets.map(asset => {
     const liveData = livePrices[asset.symbol];
-    
+
     if (liveData) {
       return {
         ...asset,
-        price: liveData.price,
-        change: liveData.change24h,
+        price: liveData.price || asset.price,
+        change: liveData.change24h ?? asset.change,
         marketCap: liveData.marketCap ? formatLargeNumber(liveData.marketCap) : asset.marketCap,
         volume: liveData.volume24h ? formatLargeNumber(liveData.volume24h) : asset.volume,
       };
     }
-    
+
     return asset;
   });
 };
