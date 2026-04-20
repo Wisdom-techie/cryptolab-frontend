@@ -1,7 +1,6 @@
 import "./BuyModal.css";
 import { useState, useEffect } from "react";
 
-// Third-party payment gateways (like Wexnozy)
 const thirdPartyGateways = [
   {
     id: "paypal",
@@ -55,75 +54,72 @@ const thirdPartyGateways = [
 ];
 
 export default function BuyModal({ asset, onClose }) {
-  const [step, setStep] = useState(1); // 1: Amount, 2: Payment Method, 3: Wallet/Gateway, 4: Confirming, 5: Success
+  const [step, setStep] = useState(1);
   const [amount, setAmount] = useState("");
-  const [paymentType, setPaymentType] = useState(""); // 'wallet' or 'gateway'
+  const [paymentType, setPaymentType] = useState("");
   const [selectedGateway, setSelectedGateway] = useState(null);
   const [hasDeposited, setHasDeposited] = useState(false);
   const [confirmingDeposit, setConfirmingDeposit] = useState(false);
   const [confirmationTime, setConfirmationTime] = useState(0);
 
-  // Wallet address (you'll provide this)
   const walletAddresses = {
-  BTC: "1CBMgBohgqG7tY2rTQ11wsucDprLm1Gp91",
-  ETH: "0x2eb5529b22c6905fca919065232c7c1424284e13",
-  USDT: "TLpzvToontHSkSrzpHVeSc6cTzsNH16WbN", // TRC20
-  BNB: "0x2eb5529b22c6905fca919065232c7c1424284e13",
-  SOL: "DBCGZ1UX2GuegrmW6oGhTYX8rfLfJpLabVXfHWvohMTe",
-  DOGE: "DRbXCrwvAMRjzzsi2AeGK1UfmnWY1uEJKi",
-  MATIC: "0x2eb5529b22c6905fca919065232c7c1424284e13",
-  ADA: "addr1q840x792swcsp7eajjmvzx5ks7kjwuvagl9239a594ff33dpk92pmdyujegr5w7v4hksy9895m52dk4324d674xt9dcs2n5ty0",
-  XRP: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv",
-  LTC: "MFLMvHdEfQgNzFbJ3wLByVXH8VVMrDJDEY",
-  AVAX: "0x2eb5529b22c6905fca919065232c7c1424284e13",
-  DASH: "XjBtK2fEkAyHZvmqPZfX18DvQ7VZDbMSeR",
-  USDC: "0x2eb5529b22c6905fca919065232c7c1424284e13",
-  SHIB: "0xdfa9d45ce1e58f9ee6eb79cbd8e96f22bf603373",
-  LINK: "0x2eb5529b22c6905fca919065232c7c1424284e13",
-  TON: "UQDxqSrLVLrkQrxSWqP9NHSzVKhuhK23pALB_-okR1JIi1cB",
-  TRX: "TLpzvToontHSkSrzpHVeSc6cTzsNH16WbN",
-  UNI: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-  ATOM: "cosmos123gy7ge4tyast0cqvhde67m2asmhny4gfjakva",
-  APT: "0x3a92d5dff963850f3b89998ea495459a63eb9a837fefc26f6a27bb8736735e1b",
-  OP: "0x2eb5529b22c6905fca919065232c7c1424284e13"
-};
- // Replace with your actual address
- const walletAddress = walletAddresses[asset.symbol] || "Address not configured";
+    BTC: "1CBMgBohgqG7tY2rTQ11wsucDprLm1Gp91",
+    ETH: "0x2eb5529b22c6905fca919065232c7c1424284e13",
+    USDT: "TLpzvToontHSkSrzpHVeSc6cTzsNH16WbN",
+    BNB: "0x2eb5529b22c6905fca919065232c7c1424284e13",
+    SOL: "DBCGZ1UX2GuegrmW6oGhTYX8rfLfJpLabVXfHWvohMTe",
+    DOGE: "DRbXCrwvAMRjzzsi2AeGK1UfmnWY1uEJKi",
+    MATIC: "0x2eb5529b22c6905fca919065232c7c1424284e13",
+    ADA: "addr1q840x792swcsp7eajjmvzx5ks7kjwuvagl9239a594ff33dpk92pmdyujegr5w7v4hksy9895m52dk4324d674xt9dcs2n5ty0",
+    XRP: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv",
+    LTC: "MFLMvHdEfQgNzFbJ3wLByVXH8VVMrDJDEY",
+    AVAX: "0x2eb5529b22c6905fca919065232c7c1424284e13",
+    DASH: "XjBtK2fEkAyHZvmqPZfX18DvQ7VZDbMSeR",
+    USDC: "0x2eb5529b22c6905fca919065232c7c1424284e13",
+    SHIB: "0xdfa9d45ce1e58f9ee6eb79cbd8e96f22bf603373",
+    LINK: "0x2eb5529b22c6905fca919065232c7c1424284e13",
+    TON: "UQDxqSrLVLrkQrxSWqP9NHSzVKhuhK23pALB_-okR1JIi1cB",
+    TRX: "TLpzvToontHSkSrzpHVeSc6cTzsNH16WbN",
+    UNI: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+    ATOM: "cosmos123gy7ge4tyast0cqvhde67m2asmhny4gfjakva",
+    APT: "0x3a92d5dff963850f3b89998ea495459a63eb9a837fefc26f6a27bb8736735e1b",
+    OP: "0x2eb5529b22c6905fca919065232c7c1424284e13"
+  };
 
+  const walletAddress = walletAddresses[asset.symbol] || "Address not configured";
   const userData = JSON.parse(localStorage.getItem("userData") || '{}');
   const preferredCurrency = userData.currency || "USD";
-
-  // Calculate crypto amount
   const amountNum = parseFloat(amount) || 0;
   const cryptoQty = amountNum / asset.price;
 
   // Confirmation timer
   useEffect(() => {
-  let interval;
-  if (confirmingDeposit) {
-    interval = setInterval(() => {
-      setConfirmationTime(prev => {
-        if (prev >= 3600) { // Changed from 60 to 3600 (1 hour)
-          clearInterval(interval);
-          setConfirmingDeposit(false);
-          setStep(5); // Success
-          return 0;
-        }
-        return prev + 1;
-      });
-    }, 1000);
-  }
-  return () => clearInterval(interval);
-}, [confirmingDeposit]);
+    let interval;
+    if (confirmingDeposit) {
+      interval = setInterval(() => {
+        setConfirmationTime(prev => {
+          if (prev >= 3600) {
+            clearInterval(interval);
+            setConfirmingDeposit(false);
+            setStep(5);
+            return 0;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [confirmingDeposit]);
 
-const formatTime = (seconds) => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
-  return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-};
+  const formatTime = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const formatPrice = (price) => {
+    if (!price || isNaN(price)) return '0.00';
     if (price < 0.01) return price.toFixed(8);
     if (price < 1) return price.toFixed(4);
     return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -131,14 +127,10 @@ const formatTime = (seconds) => {
 
   const handleAmountChange = (e) => {
     const value = e.target.value;
-    if (value === "" || /^\d*\.?\d*$/.test(value)) {
-      setAmount(value);
-    }
+    if (value === "" || /^\d*\.?\d*$/.test(value)) setAmount(value);
   };
 
-  const handleQuickAmount = (value) => {
-    setAmount(value.toString());
-  };
+  const handleQuickAmount = (value) => setAmount(value.toString());
 
   const handleContinueToPayment = () => {
     if (!amount || amountNum <= 0) {
@@ -155,7 +147,6 @@ const formatTime = (seconds) => {
 
   const handleGatewaySelect = (gateway) => {
     setSelectedGateway(gateway);
-    // In production, this would redirect to the gateway
     alert(`Redirecting to ${gateway.name}...`);
   };
 
@@ -174,7 +165,6 @@ const formatTime = (seconds) => {
   };
 
   const handleCloseFinal = () => {
-    // Reset all states
     setStep(1);
     setAmount("");
     setPaymentType("");
@@ -188,6 +178,7 @@ const formatTime = (seconds) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
+
         {/* Close Button */}
         <button className="modal-close" onClick={onClose}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -222,11 +213,7 @@ const formatTime = (seconds) => {
 
               <div className="quick-amounts">
                 {[50, 100, 500, 1000].map((value) => (
-                  <button
-                    key={value}
-                    className="quick-amount-btn"
-                    onClick={() => handleQuickAmount(value)}
-                  >
+                  <button key={value} className="quick-amount-btn" onClick={() => handleQuickAmount(value)}>
                     ${value}
                   </button>
                 ))}
@@ -255,10 +242,7 @@ const formatTime = (seconds) => {
             </div>
 
             <div className="payment-type-cards">
-              <div 
-                className="payment-type-card"
-                onClick={() => handlePaymentTypeSelect('wallet')}
-              >
+              <div className="payment-type-card" onClick={() => handlePaymentTypeSelect('wallet')}>
                 <div className="payment-type-icon">
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
@@ -270,10 +254,7 @@ const formatTime = (seconds) => {
                 <div className="badge recommended">Recommended</div>
               </div>
 
-              <div 
-                className="payment-type-card"
-                onClick={() => handlePaymentTypeSelect('gateway')}
-              >
+              <div className="payment-type-card" onClick={() => handlePaymentTypeSelect('gateway')}>
                 <div className="payment-type-icon">
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10"/>
@@ -286,9 +267,7 @@ const formatTime = (seconds) => {
               </div>
             </div>
 
-            <button className="modal-btn secondary" onClick={() => setStep(1)}>
-              Back
-            </button>
+            <button className="modal-btn secondary" onClick={() => setStep(1)}>Back</button>
           </>
         )}
 
@@ -332,8 +311,8 @@ const formatTime = (seconds) => {
               </div>
 
               <div className="confirmation-checkbox">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   id="deposit-confirm"
                   checked={hasDeposited}
                   onChange={(e) => setHasDeposited(e.target.checked)}
@@ -345,11 +324,9 @@ const formatTime = (seconds) => {
             </div>
 
             <div className="modal-actions">
-              <button className="modal-btn secondary" onClick={() => setStep(2)}>
-                Back
-              </button>
-              <button 
-                className="modal-btn primary" 
+              <button className="modal-btn secondary" onClick={() => setStep(2)}>Back</button>
+              <button
+                className="modal-btn primary"
                 onClick={handleConfirmDeposit}
                 disabled={!hasDeposited}
               >
@@ -369,11 +346,7 @@ const formatTime = (seconds) => {
 
             <div className="gateway-list">
               {thirdPartyGateways.map((gateway) => (
-                <div 
-                  key={gateway.id}
-                  className="gateway-card"
-                  onClick={() => handleGatewaySelect(gateway)}
-                >
+                <div key={gateway.id} className="gateway-card" onClick={() => handleGatewaySelect(gateway)}>
                   <div className="gateway-logo">
                     <img src={gateway.logo} alt={gateway.name} />
                   </div>
@@ -389,40 +362,51 @@ const formatTime = (seconds) => {
               ))}
             </div>
 
-            <button className="modal-btn secondary" onClick={() => setStep(2)}>
-              Back
-            </button>
+            <button className="modal-btn secondary" onClick={() => setStep(2)}>Back</button>
           </>
         )}
 
         {/* STEP 4: CONFIRMING DEPOSIT */}
         {step === 4 && (
-  <div className="confirming-screen">
-    <div className="loading-spinner">
-      {/* ... spinner SVG ... */}
-    </div>
-    <h3>Transaction Submitted</h3>
-    <p>Your deposit is pending admin approval.</p>
-    <p className="timer">Submitted: {new Date().toLocaleString()}</p>
-    <div className="confirming-details">
-      <div className="detail-row">
-        <span>Amount</span>
-        <span>{formatPrice(cryptoQty)} {asset.symbol}</span>
-      </div>
-      <div className="detail-row">
-        <span>Value</span>
-        <span>${amountNum.toFixed(2)}</span>
-      </div>
-      <div className="detail-row">
-        <span>Status</span>
-        <span className="status-pending">⏳ Awaiting Approval</span>
-      </div>
-    </div>
-    <button className="modal-btn secondary" onClick={handleCloseFinal}>
-      Close
-    </button>
-  </div>
-)}
+          <div className="confirming-screen">
+            <div className="loading-spinner">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+            </div>
+
+            <h3>Transaction Submitted</h3>
+            <p>Your deposit is being verified. This usually takes up to 1 hour.</p>
+
+            <div className="countdown-timer">
+              <span className="timer-label">Estimated confirmation in</span>
+              <span className="timer-value">{formatTime(3600 - confirmationTime)}</span>
+            </div>
+
+            <div className="confirming-details">
+              <div className="detail-row">
+                <span>Amount</span>
+                <span>{formatPrice(cryptoQty)} {asset.symbol}</span>
+              </div>
+              <div className="detail-row">
+                <span>Value</span>
+                <span>${amountNum.toFixed(2)}</span>
+              </div>
+              <div className="detail-row">
+                <span>Status</span>
+                <span className="status-pending">⏳ Pending Verification</span>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '1.5rem' }}>
+              You can close this window. Your deposit will be processed automatically.
+            </p>
+
+            <button className="modal-btn secondary" style={{ marginTop: '1rem' }} onClick={handleCloseFinal}>
+              Close & Wait
+            </button>
+          </div>
+        )}
 
         {/* STEP 5: SUCCESS */}
         {step === 5 && (
@@ -434,7 +418,7 @@ const formatTime = (seconds) => {
             </div>
             <h3>Purchase Successful!</h3>
             <p>Your {asset.name} has been credited to your wallet.</p>
-            
+
             <div className="success-details">
               <div className="success-row">
                 <span>Amount</span>
@@ -446,9 +430,7 @@ const formatTime = (seconds) => {
               </div>
             </div>
 
-            <button className="modal-btn primary" onClick={handleCloseFinal}>
-              Done
-            </button>
+            <button className="modal-btn primary" onClick={handleCloseFinal}>Done</button>
           </div>
         )}
       </div>
