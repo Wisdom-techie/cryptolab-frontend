@@ -10,7 +10,6 @@ export default function Navbar({ isPublic = false }) {
   const navigate = useNavigate();
   const isAuthenticated = localStorage.getItem("isAuth") === "true";
 
-  // Load user data and keep it updated
   useEffect(() => {
     if (isAuthenticated) {
       const loadUserData = () => {
@@ -19,20 +18,15 @@ export default function Navbar({ isPublic = false }) {
           if (data) {
             const parsed = JSON.parse(data);
             setUserData(parsed);
-            console.log('User data loaded:', parsed); // Debug
+            console.log('User data loaded:', parsed);
           }
         } catch (error) {
           console.error('Failed to parse user data:', error);
         }
       };
 
-      // Load initially
       loadUserData();
-
-      // Listen for storage changes (when data updates)
       window.addEventListener('storage', loadUserData);
-      
-      // Custom event listener for same-tab updates
       window.addEventListener('userDataUpdated', loadUserData);
 
       return () => {
@@ -42,21 +36,13 @@ export default function Navbar({ isPublic = false }) {
     }
   }, [isAuthenticated]);
 
-  // Get user initials
   const getUserInitials = () => {
     if (!userData) return "U";
-    
     const firstName = userData.firstName || userData.first_name || "";
     const lastName = userData.lastName || userData.last_name || "";
-    
-    if (firstName && lastName) {
-      return `${firstName[0]}${lastName[0]}`.toUpperCase();
-    } else if (firstName) {
-      return firstName.substring(0, 2).toUpperCase();
-    } else if (userData.email) {
-      return userData.email.substring(0, 2).toUpperCase();
-    }
-    
+    if (firstName && lastName) return `${firstName[0]}${lastName[0]}`.toUpperCase();
+    if (firstName) return firstName.substring(0, 2).toUpperCase();
+    if (userData.email) return userData.email.substring(0, 2).toUpperCase();
     return "U";
   };
 
@@ -66,7 +52,6 @@ export default function Navbar({ isPublic = false }) {
     document.body.setAttribute("data-theme", theme);
   }, [theme]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (showProfileMenu && !e.target.closest('.profile-dropdown-container')) {
@@ -115,7 +100,6 @@ export default function Navbar({ isPublic = false }) {
       {/* Center - Desktop Only */}
       <nav className="nav-center">
         {isPublic ? (
-          // PUBLIC NAVBAR
           <>
             <a href="#markets" onClick={(e) => {
               e.preventDefault();
@@ -129,14 +113,13 @@ export default function Navbar({ isPublic = false }) {
             <Link to="#">Learn</Link>
           </>
         ) : (
-          // AUTHENTICATED NAVBAR
           <>
             <Link to="/home">Markets</Link>
             <Link to="/buy-crypto">Buy Crypto</Link>
             <Link to="/dashboard">Dashboard</Link>
             <Link to="/trade" className="pro-link">Trade PRO 🔒</Link>
             {userData?.role === 'admin' && (
-              <Link to="/admin" style={{ color: '#ef4444', fontWeight: 'bold' }}>
+              <Link to="/admin/balance" style={{ color: '#f59e0b', fontWeight: 'bold' }}>
                 🔐 Admin
               </Link>
             )}
@@ -153,8 +136,7 @@ export default function Navbar({ isPublic = false }) {
           {theme === "dark" ? "🌙" : "☀️"}
         </button>
 
-        {/* Hamburger Menu Button - Mobile Only */}
-        <button 
+        <button
           className="hamburger-btn"
           onClick={() => setShowMobileMenu(!showMobileMenu)}
         >
@@ -164,24 +146,22 @@ export default function Navbar({ isPublic = false }) {
         </button>
 
         {isPublic ? (
-          // PUBLIC: Show Sign up / Sign in
           <button className="auth-btn" onClick={() => navigate("/auth")}>
             Sign up / Sign in
           </button>
         ) : (
-          // AUTHENTICATED: Show Profile Dropdown
           <div className="profile-dropdown-container">
-            <button 
+            <button
               className="profile-btn"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
             >
               <div className="profile-avatar">
                 {userInitials}
               </div>
-              <svg 
-                width="12" 
-                height="12" 
-                viewBox="0 0 12 12" 
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
                 fill="currentColor"
                 className={`dropdown-arrow ${showProfileMenu ? 'open' : ''}`}
               >
@@ -206,10 +186,7 @@ export default function Navbar({ isPublic = false }) {
                 <div className="profile-divider"></div>
 
                 <div className="profile-menu">
-                  <button onClick={() => {
-                    navigate("/dashboard");
-                    setShowProfileMenu(false);
-                  }}>
+                  <button onClick={() => { navigate("/dashboard"); setShowProfileMenu(false); }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                       <circle cx="12" cy="7" r="4"/>
@@ -217,10 +194,7 @@ export default function Navbar({ isPublic = false }) {
                     My Profile
                   </button>
 
-                  <button onClick={() => {
-                    navigate("/dashboard");
-                    setShowProfileMenu(false);
-                  }}>
+                  <button onClick={() => { navigate("/dashboard"); setShowProfileMenu(false); }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
                       <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
@@ -228,9 +202,7 @@ export default function Navbar({ isPublic = false }) {
                     Portfolio
                   </button>
 
-                  <button onClick={() => {
-                    setShowProfileMenu(false);
-                  }}>
+                  <button onClick={() => { setShowProfileMenu(false); }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="3"/>
                       <path d="M12 1v6m0 6v6m6-12l-6 6m0 0L6 7m6 6l6 6m-6-6l-6 6"/>
@@ -238,23 +210,18 @@ export default function Navbar({ isPublic = false }) {
                     Settings
                   </button>
 
-                  <button onClick={() => {
-                    setShowProfileMenu(false);
-                  }}>
+                  <button onClick={() => { setShowProfileMenu(false); }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10"/>
                       <path d="M12 16v-4m0-4h.01"/>
                     </svg>
                     Help & Support
                   </button>
-                  
+
                   {userData?.role === 'admin' && (
-                    <button 
-                      onClick={() => {
-                        navigate("/admin");
-                        setShowProfileMenu(false);
-                      }}
-                      style={{ color: '#ef4444' }}
+                    <button
+                      onClick={() => { navigate("/admin/balance"); setShowProfileMenu(false); }}
+                      style={{ color: '#f59e0b' }}
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -297,7 +264,7 @@ export default function Navbar({ isPublic = false }) {
               <a onClick={() => handleMobileNavClick('/dashboard')}>Dashboard</a>
               <a onClick={() => handleMobileNavClick('/trade')} className="pro-link">Trade PRO 🔒</a>
               {userData?.role === 'admin' && (
-                <a onClick={() => handleMobileNavClick('/admin')} style={{ color: '#ef4444' }}>
+                <a onClick={() => handleMobileNavClick('/admin/balance')} style={{ color: '#f59e0b' }}>
                   🔐 Admin Panel
                 </a>
               )}
