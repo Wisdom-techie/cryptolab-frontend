@@ -7,21 +7,12 @@ const Activity = require('../models/Activity');
 exports.getBalance = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('balances');
-    
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Convert Map to object
     const balances = {};
-    user.balances.forEach((value, key) => {
-      balances[key] = value;
-    });
+    user.balances.forEach((value, key) => { balances[key] = value; });
 
-    res.json({
-      success: true,
-      balances
-    });
+    res.json({ success: true, balances });
   } catch (error) {
     console.error('Get balance error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -35,10 +26,7 @@ exports.getTransactions = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(100);
 
-    res.json({
-      success: true,
-      transactions
-    });
+    res.json({ success: true, transactions });
   } catch (error) {
     console.error('Get transactions error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -55,11 +43,8 @@ exports.processDeposit = async (req, res) => {
     }
 
     const user = await User.findById(req.user._id);
-    
-    // Calculate total in USDT
     const total = parseFloat(amount) * parseFloat(price);
 
-    // Create transaction
     const transaction = await Transaction.create({
       user: user._id,
       type: 'deposit',
@@ -67,14 +52,13 @@ exports.processDeposit = async (req, res) => {
       amount: parseFloat(amount),
       price: parseFloat(price),
       total,
-      status: 'pending', // Admin will confirm
+      status: 'pending',
       paymentMethod: paymentMethod || 'wallet',
       gateway: gateway || null,
       walletAddress: walletAddress || null,
       txHash: txHash || null
     });
 
-    // Log activity
     await Activity.create({
       user: user._id,
       action: 'Deposit Request',
@@ -92,6 +76,50 @@ exports.processDeposit = async (req, res) => {
   }
 };
 
+// @desc    Self-credit deposit after timer completion (user-initiated)
+exports.selfCreditDeposit = async (req, res) => {
+  try {
+    const { asset, amount } = req.body;
+
+    if (!asset || !amount) {
+      return res.status(400).json({ message: 'Asset and amount are required' });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const depositAmount = parseFloat(amount);
+    const currentBalance = user.balances.get('USDT') || 0;
+    const newBalance = currentBalance + depositAmount;
+
+    user.balances.set('USDT', newBalance);
+    await user.save();
+
+    await Transaction.create({
+      user: user._id,
+      type: 'deposit',
+      asset,
+      amount: depositAmount,
+      price: 1,
+      total: depositAmount,
+      status: 'completed',
+      paymentMethod: 'wallet',
+      gateway: 'auto_credit'
+    });
+
+    await Activity.create({
+      user: user._id,
+      action: 'Deposit Auto-Credited',
+      details: `Self-credited deposit of $${depositAmount} after verification timer`
+    });
+
+    res.json({ success: true, message: 'Balance credited successfully', newBalance });
+  } catch (error) {
+    console.error('Self credit error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 // @desc    Request withdrawal
 exports.requestWithdrawal = async (req, res) => {
   try {
@@ -102,8 +130,6 @@ exports.requestWithdrawal = async (req, res) => {
     }
 
     const user = await User.findById(req.user._id);
-    
-    // Check if user has enough balance
     const currentBalance = user.balances.get(asset) || 0;
     const requestedAmount = parseFloat(amount);
 
@@ -111,20 +137,17 @@ exports.requestWithdrawal = async (req, res) => {
       return res.status(400).json({ message: 'Insufficient balance' });
     }
 
-    // Define withdrawal fees per asset (2% or fixed)
     const fees = {
       BTC: requestedAmount * 0.0005,
       ETH: requestedAmount * 0.005,
       USDT: Math.max(1, requestedAmount * 0.01),
       BNB: requestedAmount * 0.0005,
       SOL: requestedAmount * 0.01,
-      // Add more as needed
     };
 
     const fee = fees[asset] || requestedAmount * 0.01;
     const total = requestedAmount - fee;
 
-    // Create withdrawal request
     const withdrawal = await Withdrawal.create({
       user: user._id,
       asset,
@@ -133,10 +156,9 @@ exports.requestWithdrawal = async (req, res) => {
       total,
       network,
       walletAddress,
-      status: 'pending' // Admin will approve
+      status: 'pending'
     });
 
-    // Log activity
     await Activity.create({
       user: user._id,
       action: 'Withdrawal Request',
@@ -153,4 +175,3 @@ exports.requestWithdrawal = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-

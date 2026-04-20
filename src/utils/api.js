@@ -1,27 +1,21 @@
 import axios from 'axios';
 
-// Backend API URL - uses environment variable or Render URL
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://cryptolab-backend-5bqm.onrender.com';
 
 console.log('[API] Using backend URL:', API_BASE_URL);
 
-// Create axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' }
 });
 
-// Add token to requests
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Handle errors
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -41,10 +35,7 @@ export const register = async (userData) => {
   const emailLower = userData.email.toLowerCase().trim();
   try {
     console.log('[API] Registering:', emailLower);
-    const response = await apiClient.post('/api/auth/register', {
-      ...userData,
-      email: emailLower
-    });
+    const response = await apiClient.post('/api/auth/register', { ...userData, email: emailLower });
     return response;
   } catch (error) {
     console.error('[API] Register error:', error.message);
@@ -56,10 +47,7 @@ export const login = async (credentials) => {
   const emailLower = credentials.email.toLowerCase().trim();
   try {
     console.log('[API] Logging in:', emailLower);
-    const response = await apiClient.post('/api/auth/login', {
-      ...credentials,
-      email: emailLower
-    });
+    const response = await apiClient.post('/api/auth/login', { ...credentials, email: emailLower });
     return response;
   } catch (error) {
     console.error('[API] Login error:', error.message);
@@ -161,6 +149,16 @@ export const processDeposit = async (depositData) => {
   }
 };
 
+export const selfCreditDeposit = async (asset, amount) => {
+  try {
+    const response = await apiClient.post('/api/wallet/deposit/self-credit', { asset, amount });
+    return response;
+  } catch (error) {
+    console.error('[API] Self credit error:', error);
+    throw error;
+  }
+};
+
 export const requestWithdrawal = async (withdrawalData) => {
   try {
     const response = await apiClient.post('/api/wallet/withdraw', withdrawalData);
@@ -198,7 +196,6 @@ export const updateUserBalance = async (userId, balanceUpdate) => {
 export const getLivePrices = async () => {
   try {
     const response = await apiClient.get('/api/crypto/prices');
-
     if (response.data.success && response.data.prices) {
       return {
         data: {
@@ -208,7 +205,6 @@ export const getLivePrices = async () => {
         }
       };
     }
-
     return { data: { prices: {}, error: 'Invalid response' } };
   } catch (error) {
     console.error('[API] Price fetch error:', error);

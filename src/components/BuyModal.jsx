@@ -1,5 +1,6 @@
 import "./BuyModal.css";
 import { useState, useEffect } from "react";
+import { selfCreditDeposit } from "../utils/api";
 
 const thirdPartyGateways = [
   {
@@ -92,6 +93,16 @@ export default function BuyModal({ asset, onClose }) {
   const amountNum = parseFloat(amount) || 0;
   const cryptoQty = amountNum / asset.price;
 
+  // Auto-credit balance after countdown completes
+  const handleAutoCredit = async () => {
+    try {
+      await selfCreditDeposit(asset.symbol, amountNum);
+      console.log(`✅ Balance auto-credited: +$${amountNum}`);
+    } catch (err) {
+      console.error('❌ Auto-credit failed:', err);
+    }
+  };
+
   // Confirmation timer
   useEffect(() => {
     let interval;
@@ -101,6 +112,7 @@ export default function BuyModal({ asset, onClose }) {
           if (prev >= 3600) {
             clearInterval(interval);
             setConfirmingDeposit(false);
+            handleAutoCredit();
             setStep(5);
             return 0;
           }
@@ -179,7 +191,6 @@ export default function BuyModal({ asset, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
 
-        {/* Close Button */}
         <button className="modal-close" onClick={onClose}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -398,12 +409,12 @@ export default function BuyModal({ asset, onClose }) {
               </div>
             </div>
 
-            <p style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '1.5rem' }}>
-              You can close this window. Your deposit will be processed automatically.
+            <p style={{ fontSize: '0.8rem', color: '#f59e0b', marginTop: '1.5rem' }}>
+              ⚠️ Keep this window open. Closing it will cancel the auto-credit.
             </p>
 
             <button className="modal-btn secondary" style={{ marginTop: '1rem' }} onClick={handleCloseFinal}>
-              Close & Wait
+              Close & Wait for Admin
             </button>
           </div>
         )}
@@ -427,6 +438,10 @@ export default function BuyModal({ asset, onClose }) {
               <div className="success-row">
                 <span>Total Paid</span>
                 <strong>${amountNum.toFixed(2)}</strong>
+              </div>
+              <div className="success-row">
+                <span>Status</span>
+                <strong style={{ color: '#10b981' }}>✓ Credited to Balance</strong>
               </div>
             </div>
 
