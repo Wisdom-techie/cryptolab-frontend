@@ -103,8 +103,7 @@ exports.selfCreditDeposit = async (req, res) => {
       price: 1,
       total: depositAmount,
       status: 'completed',
-      paymentMethod: 'wallet',
-      gateway: 'auto_credit'
+      paymentMethod: 'auto_credit'
     });
 
     await Activity.create({

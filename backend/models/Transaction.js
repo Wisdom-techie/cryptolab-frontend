@@ -8,7 +8,7 @@ const transactionSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['buy', 'sell', 'deposit', 'withdrawal'],
+    enum: ['buy', 'sell', 'deposit', 'withdrawal', 'adjustment'],
     required: true
   },
   asset: {
@@ -34,7 +34,7 @@ const transactionSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['wallet', 'gateway'],
+    enum: ['wallet', 'gateway', 'admin_adjustment', 'auto_credit'],
     default: 'wallet'
   },
   gateway: {
