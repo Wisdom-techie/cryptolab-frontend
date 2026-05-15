@@ -11,12 +11,13 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    'https://cryptolab.trade',
+    'https://www.cryptolab.trade'
+  ],
   credentials: true
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 // Serve uploaded files (avatars)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
