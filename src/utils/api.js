@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// FIXED: Remove /api from base URL since it's already in the routes
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://cryptolab-backend-5bqm.onrender.com';
 
 console.log('[API] Using backend URL:', API_BASE_URL);
@@ -38,7 +39,7 @@ export const register = async (userData) => {
     const response = await apiClient.post('/api/auth/register', { ...userData, email: emailLower });
     return response;
   } catch (error) {
-    console.error('[API] Register error:', error.message);
+    console.error('[API] Register error:', error.response?.data || error.message);
     throw error;
   }
 };
@@ -50,7 +51,7 @@ export const login = async (credentials) => {
     const response = await apiClient.post('/api/auth/login', { ...credentials, email: emailLower });
     return response;
   } catch (error) {
-    console.error('[API] Login error:', error.message);
+    console.error('[API] Login error:', error.response?.data || error.message);
     throw error;
   }
 };
@@ -161,7 +162,7 @@ export const selfCreditDeposit = async (asset, amount) => {
 
 export const requestWithdrawal = async (withdrawalData) => {
   try {
-    const response = await apiClient.post('/api/wallet/withdraw', withdrawalData);
+    const response = await apiClient.post('/api/wallet/withdrawal', withdrawalData);
     return response;
   } catch (error) {
     console.error('[API] Withdrawal error:', error);
@@ -195,8 +196,10 @@ export const updateUserBalance = async (userId, balanceUpdate) => {
 
 export const getLivePrices = async () => {
   try {
+    console.log('🔄 Fetching live crypto prices...');
     const response = await apiClient.get('/api/crypto/prices');
     if (response.data.success && response.data.prices) {
+      console.log(`✅ Successfully updated ${Object.keys(response.data.prices).length} crypto prices`);
       return {
         data: {
           prices: response.data.prices,
@@ -205,9 +208,11 @@ export const getLivePrices = async () => {
         }
       };
     }
+    console.log('⚠️ Invalid price data format');
     return { data: { prices: {}, error: 'Invalid response' } };
   } catch (error) {
     console.error('[API] Price fetch error:', error);
+    console.log('⚠️ No valid prices received, using static data');
     return { data: { prices: {}, error: 'Failed to fetch prices' } };
   }
 };
