@@ -336,7 +336,7 @@ export default function Auth() {
 
       {/* RIGHT SIDE */}
       <div className="auth-right">
-        <div className="auth-card">
+        <form className="auth-card" onSubmit={handleSubmit}>
           <h2>{isSignup ? "Create Account" : "Sign In"}</h2>
           
           {isSignup && (
@@ -518,10 +518,10 @@ export default function Auth() {
             )}
             
             <button
-              onClick={handleSubmit}
-              disabled={isSignup && currentStep === 2 && !formData.agreed}
-              className={isSignup && currentStep === 2 && !formData.agreed ? "disabled" : ""}
-            >
+  type="submit"
+  disabled={isSignup && currentStep === 2 && !formData.agreed}
+  className={isSignup && currentStep === 2 && !formData.agreed ? "disabled" : ""}
+>
               {isSignup ? (currentStep === 1 ? "Next" : "Create Account") : "Sign In"}
             </button>
           </div>
@@ -551,7 +551,7 @@ export default function Auth() {
               </>
             )}
           </div>
-        </div>
+        </form>
       </div>
 
       {/* SUCCESS POPUP */}
