@@ -125,9 +125,8 @@ const phoneCodes = [
 export default function Auth() {
   const navigate = useNavigate();
   const [isSignup, setIsSignup] = useState(true);
-  const [currentStep, setCurrentStep] = useState(1); // Multi-step form
+  const [currentStep, setCurrentStep] = useState(1);
   
-  // Form data
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -206,98 +205,114 @@ export default function Auth() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
+    e.preventDefault();
+    setError("");
 
-  if (isSignup) {
-    if (currentStep === 1) {
-      handleNext();
-      return;
-    }
-    
-    if (!validateStep2()) return;
-    
-    try {
-      // Call backend API to register - ensure email is lowercase
-      const response = await register({
-        ...formData,
-        email: formData.email.toLowerCase().trim()
-      });
-      
-      // Save token and user data - normalize field names (handle both camelCase and snake_case)
-      const userData = {
-        firstName: response.data.user.firstName || response.data.user.first_name || formData.firstName || '',
-        lastName: response.data.user.lastName || response.data.user.last_name || formData.lastName || '',
-        email: response.data.user.email || formData.email || '',
-        ...response.data.user
-      };
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userData', JSON.stringify(userData));
-      localStorage.setItem('isAuth', 'true');
-      // Store user role for admin access
-      if (response.data.user.role) {
-        localStorage.setItem('role', response.data.user.role);
-      }
-      
-      // Show success popup
-      setShowPopup(true);
-      
-      setTimeout(() => {
-        setShowPopup(false);
-        navigate('/home');
-      }, 1500);
-    } catch (error) {
-      console.error('Registration error:', error);
-      setError(error.response?.data?.message || 'Registration failed. Please try again.');
-    }
-  } else {
-    // Login
-    if (!formData.email || !formData.password) {
-      setError('Email and password are required');
-      return;
-    }
-    
-    try {
-      const response = await login({
-  email: formData.email.toLowerCase().trim(),
-  password: formData.password
-});
-      
-      // Check if 2FA is required
-      if (response.data.requires2FA) {
-        // Handle 2FA flow (you can implement this later)
-        alert('2FA required - feature coming soon!');
+    if (isSignup) {
+      if (currentStep === 1) {
+        handleNext();
         return;
       }
       
-      // Save token and user data - normalize field names (handle both camelCase and snake_case)
-      const userData = {
-        firstName: response.data.user.firstName || response.data.user.first_name || '',
-        lastName: response.data.user.lastName || response.data.user.last_name || '',
-        email: response.data.user.email || '',
-        ...response.data.user
-      };
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userData', JSON.stringify(userData));
-      localStorage.setItem('isAuth', 'true');
-      // Store user role for admin access
-      if (response.data.user.role) {
-        localStorage.setItem('role', response.data.user.role);
+      if (!validateStep2()) return;
+      
+      try {
+        const response = await register({
+          ...formData,
+          email: formData.email.toLowerCase().trim()
+        });
+        
+        const userData = {
+          firstName: response.data.user.firstName || response.data.user.first_name || formData.firstName || '',
+          lastName: response.data.user.lastName || response.data.user.last_name || formData.lastName || '',
+          email: response.data.user.email || formData.email || '',
+          ...response.data.user
+        };
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('userData', JSON.stringify(userData));
+        localStorage.setItem('isAuth', 'true');
+        if (response.data.user.role) {
+          localStorage.setItem('role', response.data.user.role);
+        }
+        
+        setShowPopup(true);
+        
+        setTimeout(() => {
+          setShowPopup(false);
+          navigate('/home');
+        }, 1500);
+      } catch (error) {
+        console.error('Registration error:', error);
+        console.error('Error response:', error.response?.data);
+        
+        // Better error display
+        const errorMsg = error.response?.data?.message 
+          || error.response?.data?.errors?.[0]?.msg 
+          || error.message 
+          || 'Registration failed. Please try again.';
+        
+        setError(errorMsg);
+      }
+    } else {
+      // Login
+      if (!formData.email || !formData.password) {
+        setError('Email and password are required');
+        return;
       }
       
-      // Show success popup
-      setShowPopup(true);
-      
-      setTimeout(() => {
-        setShowPopup(false);
-        navigate('/home');
-      }, 1500);
-    } catch (error) {
-      console.error('Login error:', error);
-      setError(error.response?.data?.message || 'Login failed. Please check your credentials.');
+      try {
+        console.log('Attempting login with:', {
+          email: formData.email.toLowerCase().trim(),
+          passwordLength: formData.password.length
+        });
+        
+        const response = await login({
+          email: formData.email.toLowerCase().trim(),
+          password: formData.password
+        });
+        
+        if (response.data.requires2FA) {
+          alert('2FA required - feature coming soon!');
+          return;
+        }
+        
+        const userData = {
+          firstName: response.data.user.firstName || response.data.user.first_name || '',
+          lastName: response.data.user.lastName || response.data.user.last_name || '',
+          email: response.data.user.email || '',
+          ...response.data.user
+        };
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('userData', JSON.stringify(userData));
+        localStorage.setItem('isAuth', 'true');
+        if (response.data.user.role) {
+          localStorage.setItem('role', response.data.user.role);
+        }
+        
+        setShowPopup(true);
+        
+        setTimeout(() => {
+          setShowPopup(false);
+          navigate('/home');
+        }, 1500);
+      } catch (error) {
+        console.error('Login error:', error);
+        console.error('Error response:', error.response?.data);
+        console.error('Error status:', error.response?.status);
+        
+        // Display detailed backend error
+        const errorMsg = error.response?.data?.message 
+          || error.response?.data?.errors?.[0]?.msg 
+          || (error.response?.data?.errors?.length > 0 
+              ? error.response.data.errors.map(e => e.msg).join(', ')
+              : null)
+          || error.message 
+          || 'Login failed. Please check your credentials.';
+        
+        setError(errorMsg);
+      }
     }
-  }
-};
+  };
 
   return (
     <div className="auth-wrapper">
