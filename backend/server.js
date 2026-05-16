@@ -9,7 +9,18 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+
+// =========================
+// MIDDLEWARE
+// =========================
+
+// Parse JSON body
+app.use(express.json());
+
+// Parse form data
+app.use(express.urlencoded({ extended: true }));
+
+// CORS
 app.use(cors({
   origin: [
     'http://localhost:5173',
@@ -18,15 +29,24 @@ app.use(cors({
   ],
   credentials: true
 }));
-// Serve uploaded files (avatars)
+
+// Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// MongoDB Connection
+
+// =========================
+// DATABASE
+// =========================
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
-// Import and use routes
+
+// =========================
+// ROUTES
+// =========================
+
 try {
   const authRoutes = require('./routes/auth');
   app.use('/api/auth', authRoutes);
@@ -75,47 +95,71 @@ try {
   console.log('⚠️ Admin routes not found - skipping');
 }
 
-// Health check
+
+// =========================
+// HEALTH CHECKS
+// =========================
+
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: '🚀 Cryptolab API is running!',
     version: '1.0.0',
     timestamp: new Date().toISOString()
   });
 });
 
-// Health check for monitoring
 app.get('/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'ok',
     uptime: process.uptime(),
     timestamp: new Date().toISOString()
   });
 });
 
-// Error handling middleware
+
+// =========================
+// ERROR HANDLING
+// =========================
+
 app.use((err, req, res, next) => {
   console.error('Error:', err.stack);
-  res.status(500).json({ 
+
+  res.status(500).json({
     success: false,
     message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    error:
+      process.env.NODE_ENV === 'development'
+        ? err.message
+        : 'Internal server error'
   });
 });
 
-// 404 handler
+
+// =========================
+// 404 HANDLER
+// =========================
+
 app.use((req, res) => {
-  res.status(404).json({ 
+  res.status(404).json({
     success: false,
     message: 'Route not found',
     requestedUrl: req.originalUrl
   });
 });
 
-// Start server
+
+// =========================
+// START SERVER
+// =========================
+
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+  console.log(
+    `🌐 Frontend URL: ${
+      process.env.FRONTEND_URL || 'http://localhost:5173'
+    }`
+  );
 });
