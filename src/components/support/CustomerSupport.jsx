@@ -53,7 +53,7 @@ export default function CustomerSupport() {
   ]);
   const [inputText, setInputText] = useState('');
   
-  const TELEGRAM_LINK = 'https://t.me/crylab_1'; // Change this!
+  const TELEGRAM_LINK = 'https://t.me/mgt_cb_01'; // Change this!
   
   const handleTelegramClick = () => {
     window.open(TELEGRAM_LINK, '_blank');
