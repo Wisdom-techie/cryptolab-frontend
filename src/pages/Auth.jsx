@@ -120,6 +120,7 @@ const phoneCodes = [
   { country: "Russia", code: "+7" },
   { country: "Ukraine", code: "+380" },
   { country: "New Zealand", code: "+64" },
+  { country: "Cyprus", code: "+357" },
 ];
 
 export default function Auth() {

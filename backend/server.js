@@ -24,12 +24,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: [
     'http://localhost:5173',
+    'http://cryptolab.trade',
     'https://cryptolab.trade',
     'https://www.cryptolab.trade'
   ],
   credentials: true
 }));
-
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
