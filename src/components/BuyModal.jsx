@@ -54,6 +54,31 @@ const thirdPartyGateways = [
   }
 ];
 
+// Network + app info per asset — used to build accurate, asset-specific deposit steps
+const networkInfo = {
+  BTC: { network: "Bitcoin (BTC)", app: "a Bitcoin wallet (e.g., Binance, Trust Wallet, Electrum)" },
+  ETH: { network: "ERC20 (Ethereum)", app: "an Ethereum wallet (e.g., MetaMask, Trust Wallet, Binance)" },
+  USDT: { network: "TRC20 (Tron)", app: "your exchange or wallet app (e.g., Binance, Trust Wallet)" },
+  BNB: { network: "BEP20 (BNB Smart Chain)", app: "a BNB-compatible wallet (e.g., Trust Wallet, Binance)" },
+  SOL: { network: "Solana (SOL)", app: "a Solana wallet (e.g., Phantom, Binance)" },
+  DOGE: { network: "Dogecoin (DOGE)", app: "a Dogecoin wallet (e.g., Trust Wallet, Binance)" },
+  MATIC: { network: "Polygon (MATIC)", app: "a Polygon-compatible wallet (e.g., Trust Wallet, MetaMask)" },
+  ADA: { network: "Cardano (ADA)", app: "a Cardano wallet (e.g., Yoroi, Binance)" },
+  XRP: { network: "XRP Ledger", app: "an XRP-compatible wallet (e.g., Binance, Trust Wallet)" },
+  LTC: { network: "Litecoin (LTC)", app: "a Litecoin wallet (e.g., Trust Wallet, Binance)" },
+  AVAX: { network: "Avalanche C-Chain", app: "an Avalanche-compatible wallet (e.g., Trust Wallet, Core)" },
+  DASH: { network: "Dash", app: "a Dash wallet (e.g., Binance, Trust Wallet)" },
+  USDC: { network: "ERC20 (Ethereum)", app: "your exchange or wallet app (e.g., MetaMask, Binance)" },
+  SHIB: { network: "ERC20 (Ethereum)", app: "an Ethereum wallet (e.g., MetaMask, Trust Wallet)" },
+  LINK: { network: "ERC20 (Ethereum)", app: "an Ethereum wallet (e.g., MetaMask, Trust Wallet)" },
+  TON: { network: "The Open Network (TON)", app: "a TON wallet (e.g., Tonkeeper, Binance)" },
+  TRX: { network: "TRC20 (Tron)", app: "a Tron-compatible wallet (e.g., Trust Wallet, Binance)" },
+  UNI: { network: "ERC20 (Ethereum)", app: "an Ethereum wallet (e.g., MetaMask, Trust Wallet)" },
+  ATOM: { network: "Cosmos Hub", app: "a Cosmos-compatible wallet (e.g., Keplr, Binance)" },
+  APT: { network: "Aptos", app: "an Aptos-compatible wallet (e.g., Petra, Binance)" },
+  OP: { network: "Optimism (OP Mainnet)", app: "an Ethereum L2 wallet (e.g., MetaMask, Trust Wallet)" },
+};
+
 export default function BuyModal({ asset, onClose }) {
   const [step, setStep] = useState(1);
   const [amount, setAmount] = useState("");
@@ -88,6 +113,13 @@ export default function BuyModal({ asset, onClose }) {
   };
 
   const walletAddress = walletAddresses[asset.symbol] || "Address not configured";
+
+  // Network/app details for whichever asset is selected — falls back gracefully if not mapped
+  const assetNetwork = networkInfo[asset.symbol] || {
+    network: asset.symbol,
+    app: "your crypto wallet or exchange app"
+  };
+
   const userData = JSON.parse(localStorage.getItem("userData") || '{}');
   const preferredCurrency = userData.currency || "USD";
   const amountNum = parseFloat(amount) || 0;
@@ -297,8 +329,21 @@ export default function BuyModal({ asset, onClose }) {
                 <span className="usd-value">≈ ${amountNum.toFixed(2)}</span>
               </div>
 
+              {/* Network warning banner */}
+              <div className="network-warning">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>
+                  Only send {asset.symbol} on the <strong>{assetNetwork.network}</strong> network.
+                  Sending on the wrong network may result in permanent loss of funds.
+                </span>
+              </div>
+
               <div className="wallet-address-section">
-                <label>Wallet Address</label>
+                <label>Wallet Address ({assetNetwork.network})</label>
                 <div className="wallet-address-display">
                   <code>{walletAddress}</code>
                   <button onClick={() => copyToClipboard(walletAddress)}>
@@ -312,12 +357,47 @@ export default function BuyModal({ asset, onClose }) {
               </div>
 
               <div className="wallet-instructions">
-                <h4>Instructions:</h4>
+                <h4>How to Deposit:</h4>
                 <ol>
-                  <li>Copy the wallet address above</li>
-                  <li>Open your crypto wallet</li>
-                  <li>Send exactly <strong>{formatPrice(cryptoQty)} {asset.symbol}</strong></li>
-                  <li>Check the box below after sending</li>
+                  <li>
+                    Tap <strong>Copy</strong> above to copy the {assetNetwork.network} wallet address.
+                  </li>
+                  <li>
+                    Open {assetNetwork.app}.
+                  </li>
+                  <li>
+                    Select <strong>Withdraw</strong> or <strong>Send</strong>, then choose{" "}
+                    <strong>{asset.symbol}</strong> as the asset.
+                  </li>
+                  {asset.symbol === "USDT" ? (
+                    <li>
+                      When asked to select a network, choose{" "}
+                      <strong>TRC20 (Tron)</strong> — do <strong>not</strong> select ERC20, BEP20, or
+                      any other network, or your funds may be lost.
+                    </li>
+                  ) : (
+                    <li>
+                      If prompted to select a network, choose{" "}
+                      <strong>{assetNetwork.network}</strong> to avoid losing your funds.
+                    </li>
+                  )}
+                  <li>
+                    Paste the wallet address you copied into the recipient field.
+                  </li>
+                  <li>
+                    Enter the exact amount:{" "}
+                    <strong>{formatPrice(cryptoQty)} {asset.symbol}</strong>.
+                  </li>
+                  <li>
+                    Double-check the address and network, then confirm and send.
+                  </li>
+                  <li>
+                    Wait for network confirmation — this usually takes a few minutes
+                    depending on network traffic.
+                  </li>
+                  <li>
+                    Once sent, check the box below to confirm your deposit.
+                  </li>
                 </ol>
               </div>
 
