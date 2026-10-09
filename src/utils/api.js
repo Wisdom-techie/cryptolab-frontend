@@ -172,6 +172,16 @@ export const requestWithdrawal = async (withdrawalData) => {
 
 // ==================== ADMIN API ====================
 
+export const getAllUsers = async () => {
+  try {
+    const response = await apiClient.get('/api/admin/users');
+    return response;
+  } catch (error) {
+    console.error('[API] Get all users error:', error);
+    throw error;
+  }
+};
+
 export const searchUsers = async (query) => {
   try {
     const response = await apiClient.get('/api/admin/users/search', { params: { q: query } });
@@ -191,8 +201,6 @@ export const updateUserBalance = async (userId, balanceUpdate) => {
     throw error;
   }
 };
-
-export const getAllUsers = () => api.get('/admin/users');
 
 // ==================== CRYPTO API ====================
 
