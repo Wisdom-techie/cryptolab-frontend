@@ -2,23 +2,35 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { getAllUsers, updateUserBalance } from '../utils/api';
 import './AdminBalance.css';
 
-// Normalize whatever shape the backend returns (id vs _id, balance vs balances map)
+// Normalize whatever shape the backend returns (id vs _id, balance vs balances map, registration date)
 const normalizeUser = (u) => {
   const balance =
     typeof u.balance === 'number'
       ? u.balance
       : Number(u.balances?.USDT ?? 0) || 0;
 
+  const rawDate = u.createdAt || u.registeredAt || u.created_at || null;
+  const createdAt = rawDate ? new Date(rawDate) : null;
+
   return {
     ...u,
     id: u.id || u._id,
     balance,
+    createdAt,
+    formattedDate: createdAt
+      ? createdAt.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        })
+      : 'N/A',
   };
 };
 
 const AdminBalance = () => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState('newest'); // 'newest' | 'oldest' | 'alphabetical'
   const [loading, setLoading] = useState(false);
   const [usersLoading, setUsersLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -35,8 +47,6 @@ const AdminBalance = () => {
     try {
       const response = await getAllUsers();
       const list = (response.data.users || []).map(normalizeUser);
-      // Alphabetical by email so it's easy to scan
-      list.sort((a, b) => (a.email || '').localeCompare(b.email || ''));
       setUsers(list);
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Failed to load users');
@@ -49,16 +59,36 @@ const AdminBalance = () => {
     loadUsers();
   }, []);
 
-  // Live filter on the loaded list (email, name, or ID)
+  // Live filter and sort on the loaded list (email, name, ID, or date)
   const filteredUsers = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return users;
-    return users.filter((u) =>
-      (u.email || '').toLowerCase().includes(q) ||
-      `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase().includes(q) ||
-      String(u.id || '').toLowerCase().includes(q)
-    );
-  }, [users, searchQuery]);
+    
+    // 1. Filter
+    let result = users.filter((u) => {
+      if (!q) return true;
+      const fullName = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+      return (
+        (u.email || '').toLowerCase().includes(q) ||
+        fullName.includes(q) ||
+        String(u.id || '').toLowerCase().includes(q) ||
+        u.formattedDate.toLowerCase().includes(q)
+      );
+    });
+
+    // 2. Sort
+    return result.sort((a, b) => {
+      if (sortOrder === 'newest') {
+        return (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0);
+      }
+      if (sortOrder === 'oldest') {
+        return (a.createdAt?.getTime() || 0) - (b.createdAt?.getTime() || 0);
+      }
+      if (sortOrder === 'alphabetical') {
+        return (a.email || '').localeCompare(b.email || '');
+      }
+      return 0;
+    });
+  }, [users, searchQuery, sortOrder]);
 
   const handleSelectUser = (user) => {
     setSelectedUser(user);
@@ -131,16 +161,27 @@ const AdminBalance = () => {
         <h1 className="admin-balance-title">User Balance Management</h1>
         <p className="admin-balance-subtitle">Select a user to update their account balance</p>
 
-        {/* Search + User List */}
+        {/* Search & Sort Controls */}
         <div className="search-section">
           <div className="search-input-group">
             <input
               type="text"
-              placeholder="Filter by email, name or user ID..."
+              placeholder="Filter by email, name, user ID, or date (e.g. Oct 9)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
+            
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="sort-select"
+            >
+              <option value="newest">Registered: Newest First</option>
+              <option value="oldest">Registered: Oldest First</option>
+              <option value="alphabetical">Email: A to Z</option>
+            </select>
+
             <button
               type="button"
               onClick={loadUsers}
@@ -176,6 +217,9 @@ const AdminBalance = () => {
                       <p className="user-name">
                         {user.firstName} {user.lastName}
                       </p>
+                      <p className="user-date">
+                        Registered: <span className="date-value">{user.formattedDate}</span>
+                      </p>
                       <p className="user-balance">
                         Current Balance:{' '}
                         <span className="balance-amount">${(user.balance || 0).toFixed(2)}</span>
@@ -200,6 +244,7 @@ const AdminBalance = () => {
                 {selectedUser.firstName} {selectedUser.lastName}
               </p>
               <p className="selected-email">{selectedUser.email}</p>
+              <p className="selected-date">Joined: {selectedUser.formattedDate}</p>
               <p className="selected-balance">
                 Current Balance: <span>${(selectedUser.balance || 0).toFixed(2)}</span>
               </p>
