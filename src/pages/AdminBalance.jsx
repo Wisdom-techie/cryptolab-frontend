@@ -1,11 +1,26 @@
-import React, { useState } from 'react';
-import { searchUsers, updateUserBalance } from '../utils/api';
+import React, { useState, useEffect, useMemo } from 'react';
+import { getAllUsers, updateUserBalance } from '../utils/api';
 import './AdminBalance.css';
 
+// Normalize whatever shape the backend returns (id vs _id, balance vs balances map)
+const normalizeUser = (u) => {
+  const balance =
+    typeof u.balance === 'number'
+      ? u.balance
+      : Number(u.balances?.USDT ?? 0) || 0;
+
+  return {
+    ...u,
+    id: u.id || u._id,
+    balance,
+  };
+};
+
 const AdminBalance = () => {
+  const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [balanceAmount, setBalanceAmount] = useState('');
   const [transactionReason, setTransactionReason] = useState('');
@@ -14,28 +29,36 @@ const AdminBalance = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) {
-      setErrorMessage('Please enter an email or user ID');
-      return;
-    }
-
-    setLoading(true);
-    setErrorMessage('');
+  // Load every registered user
+  const loadUsers = async () => {
+    setUsersLoading(true);
     try {
-      const response = await searchUsers(searchQuery);
-      setSearchResults(response.data.users || []);
-      if (!response.data.users || response.data.users.length === 0) {
-        setErrorMessage('No users found');
-      }
+      const response = await getAllUsers();
+      const list = (response.data.users || []).map(normalizeUser);
+      // Alphabetical by email so it's easy to scan
+      list.sort((a, b) => (a.email || '').localeCompare(b.email || ''));
+      setUsers(list);
     } catch (error) {
-      setErrorMessage(error.response?.data?.message || 'Failed to search users');
-      setSearchResults([]);
+      setErrorMessage(error.response?.data?.message || 'Failed to load users');
     } finally {
-      setLoading(false);
+      setUsersLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  // Live filter on the loaded list (email, name, or ID)
+  const filteredUsers = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter((u) =>
+      (u.email || '').toLowerCase().includes(q) ||
+      `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase().includes(q) ||
+      String(u.id || '').toLowerCase().includes(q)
+    );
+  }, [users, searchQuery]);
 
   const handleSelectUser = (user) => {
     setSelectedUser(user);
@@ -47,7 +70,7 @@ const AdminBalance = () => {
 
   const handleBalanceSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!selectedUser) {
       setErrorMessage('Please select a user');
       return;
@@ -63,10 +86,11 @@ const AdminBalance = () => {
       return;
     }
 
+    setErrorMessage('');
     setPendingUpdate({
       amount: parseFloat(balanceAmount),
       reason: transactionReason,
-      currentBalance: selectedUser.balance || 0
+      currentBalance: selectedUser.balance || 0,
     });
     setShowConfirmModal(true);
   };
@@ -81,7 +105,7 @@ const AdminBalance = () => {
     try {
       await updateUserBalance(selectedUser.id, {
         newBalance: pendingUpdate.amount,
-        reason: pendingUpdate.reason
+        reason: pendingUpdate.reason,
       });
 
       setSuccessMessage('Balance updated successfully!');
@@ -89,6 +113,9 @@ const AdminBalance = () => {
       setBalanceAmount('');
       setTransactionReason('');
       setPendingUpdate(null);
+
+      // Refresh the list so the new balance shows immediately
+      await loadUsers();
 
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
@@ -102,43 +129,56 @@ const AdminBalance = () => {
     <div className="admin-balance-container">
       <div className="admin-balance-wrapper">
         <h1 className="admin-balance-title">User Balance Management</h1>
-        <p className="admin-balance-subtitle">Search and update user account balances</p>
+        <p className="admin-balance-subtitle">Select a user to update their account balance</p>
 
-        {/* Search Section */}
+        {/* Search + User List */}
         <div className="search-section">
-          <form onSubmit={handleSearch}>
-            <div className="search-input-group">
-              <input
-                type="text"
-                placeholder="Search by email or user ID..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input"
-              />
-              <button type="submit" disabled={loading} className="search-btn">
-                {loading ? 'Searching...' : 'Search'}
-              </button>
-            </div>
-          </form>
+          <div className="search-input-group">
+            <input
+              type="text"
+              placeholder="Filter by email, name or user ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+            <button
+              type="button"
+              onClick={loadUsers}
+              disabled={usersLoading}
+              className="search-btn"
+            >
+              {usersLoading ? 'Loading...' : 'Refresh'}
+            </button>
+          </div>
 
-          {/* Search Results */}
-          {searchResults.length > 0 && (
-            <div className="search-results">
-              <h3>Search Results</h3>
+          <div className="search-results">
+            <h3>
+              Registered Users ({filteredUsers.length}
+              {searchQuery.trim() ? ` of ${users.length}` : ''})
+            </h3>
+
+            {usersLoading && users.length === 0 ? (
+              <p className="user-email">Loading users...</p>
+            ) : filteredUsers.length === 0 ? (
+              <p className="user-email">
+                {users.length === 0 ? 'No registered users yet' : 'No users match your filter'}
+              </p>
+            ) : (
               <div className="results-list">
-                {searchResults.map((user) => (
+                {filteredUsers.map((user) => (
                   <div
                     key={user.id}
                     className={`result-card ${selectedUser?.id === user.id ? 'selected' : ''}`}
                     onClick={() => handleSelectUser(user)}
                   >
                     <div className="result-info">
+                      <p className="user-email">{user.email}</p>
                       <p className="user-name">
                         {user.firstName} {user.lastName}
                       </p>
-                      <p className="user-email">{user.email}</p>
                       <p className="user-balance">
-                        Current Balance: <span className="balance-amount">${(user.balance || 0).toFixed(2)}</span>
+                        Current Balance:{' '}
+                        <span className="balance-amount">${(user.balance || 0).toFixed(2)}</span>
                       </p>
                     </div>
                     <div className="select-indicator">
@@ -147,8 +187,8 @@ const AdminBalance = () => {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Balance Update Form */}
@@ -200,11 +240,7 @@ const AdminBalance = () => {
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="submit-btn"
-                >
+                <button type="submit" disabled={loading} className="submit-btn">
                   {loading ? 'Processing...' : 'Update Balance'}
                 </button>
               </div>
@@ -224,30 +260,41 @@ const AdminBalance = () => {
             <h2>Confirm Balance Update</h2>
             <div className="confirmation-details">
               <p className="confirm-user">
-                <strong>{selectedUser.firstName} {selectedUser.lastName}</strong>
+                <strong>
+                  {selectedUser.firstName} {selectedUser.lastName}
+                </strong>
               </p>
               <p className="confirm-email">{selectedUser.email}</p>
-              
+
               <div className="balance-change-display">
                 <div className="balance-item">
                   <span className="label">Current Balance:</span>
-                  <span className="value current">${(pendingUpdate.currentBalance).toFixed(2)}</span>
+                  <span className="value current">${pendingUpdate.currentBalance.toFixed(2)}</span>
                 </div>
                 <div className="balance-arrow">→</div>
                 <div className="balance-item">
                   <span className="label">New Balance:</span>
-                  <span className="value new">${(pendingUpdate.amount).toFixed(2)}</span>
+                  <span className="value new">${pendingUpdate.amount.toFixed(2)}</span>
                 </div>
               </div>
 
               <div className="change-info">
                 <p>
-                  <strong>Change:</strong> ${Math.abs(pendingUpdate.amount - pendingUpdate.currentBalance).toFixed(2)} 
-                  <span className={pendingUpdate.amount > pendingUpdate.currentBalance ? 'increase' : 'decrease'}>
-                    {pendingUpdate.amount > pendingUpdate.currentBalance ? ' (increase)' : ' (decrease)'}
+                  <strong>Change:</strong> $
+                  {Math.abs(pendingUpdate.amount - pendingUpdate.currentBalance).toFixed(2)}
+                  <span
+                    className={
+                      pendingUpdate.amount > pendingUpdate.currentBalance ? 'increase' : 'decrease'
+                    }
+                  >
+                    {pendingUpdate.amount > pendingUpdate.currentBalance
+                      ? ' (increase)'
+                      : ' (decrease)'}
                   </span>
                 </p>
-                <p><strong>Reason:</strong> {pendingUpdate.reason}</p>
+                <p>
+                  <strong>Reason:</strong> {pendingUpdate.reason}
+                </p>
               </div>
             </div>
 

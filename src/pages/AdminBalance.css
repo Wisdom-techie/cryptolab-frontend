@@ -559,3 +559,8 @@
     padding: 1.5rem;
   }
 }
+
+.results-list {
+  max-height: 420px;
+  overflow-y: auto;
+}

@@ -192,6 +192,8 @@ export const updateUserBalance = async (userId, balanceUpdate) => {
   }
 };
 
+export const getAllUsers = () => api.get('/admin/users');
+
 // ==================== CRYPTO API ====================
 
 export const getLivePrices = async () => {
