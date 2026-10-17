@@ -118,6 +118,16 @@ export const changePassword = async (currentPassword, newPassword) => {
   }
 };
 
+export const getActivities = async () => {
+  try {
+    const response = await apiClient.get('/api/user/activities');
+    return response;
+  } catch (error) {
+    console.error('[API] Get activities error:', error);
+    throw error;
+  }
+};
+
 // ==================== WALLET API ====================
 
 export const getBalance = async () => {
