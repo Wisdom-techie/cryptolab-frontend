@@ -9,9 +9,11 @@ import FAQ from "../components/faq/FAQ";
 
 export default function Home() {
   const navigate = useNavigate();
-  const [showBalance, setShowBalance] = useState(true);
 
-  // Placeholder until connected to the user's actual portfolio data
+  // Hide the balance by default for privacy.
+  const [showBalance, setShowBalance] = useState(false);
+
+  // Placeholder only. Connect this to authenticated portfolio data later.
   const totalBalance = 0;
 
   const formattedBalance = showBalance
@@ -20,6 +22,10 @@ export default function Home() {
         maximumFractionDigits: 2,
       })}`
     : "••••••";
+
+  const toggleBalance = () => {
+    setShowBalance((previous) => !previous);
+  };
 
   return (
     <>
@@ -46,7 +52,7 @@ export default function Home() {
       <section className="home-balance-section">
         <div className="home-balance-card">
           <div className="home-balance-top">
-            <div>
+            <div className="home-balance-heading">
               <span className="home-balance-label">
                 Total Portfolio Balance
               </span>
@@ -54,13 +60,18 @@ export default function Home() {
               <h2 className="home-balance-amount">
                 {formattedBalance}
               </h2>
+
+              <span className="home-balance-note">
+                Balance preview
+              </span>
             </div>
 
             <button
               type="button"
               className="balance-visibility-btn"
-              onClick={() => setShowBalance((previous) => !previous)}
+              onClick={toggleBalance}
               aria-label={showBalance ? "Hide balance" : "Show balance"}
+              aria-pressed={showBalance}
               title={showBalance ? "Hide balance" : "Show balance"}
             >
               {showBalance ? (
@@ -107,7 +118,9 @@ export default function Home() {
                 Available Balance
               </span>
 
-              <strong>{formattedBalance}</strong>
+              <strong className="home-available-amount">
+                {formattedBalance}
+              </strong>
             </div>
 
             <button
@@ -115,7 +128,7 @@ export default function Home() {
               className="home-balance-action"
               onClick={() => navigate("/buy-crypto")}
             >
-              + Buy Crypto
+              <span aria-hidden="true">+</span> Buy Crypto
             </button>
           </div>
         </div>
