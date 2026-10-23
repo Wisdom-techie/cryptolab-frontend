@@ -52,3 +52,118 @@
   transform: translateY(-2px);
   box-shadow: 0 10px 30px rgba(34, 197, 94, 0.35);
 }
+
+
+/* Homepage portfolio balance card */
+.home-balance-section {
+  width: min(1100px, 92%);
+  margin: 30px auto 40px;
+}
+
+.home-balance-card {
+  position: relative;
+  overflow: hidden;
+  padding: 28px;
+  border-radius: 20px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #151b35 0%, #242b52 55%, #343c70 100%);
+  box-shadow: 0 12px 35px rgba(12, 20, 50, 0.14);
+}
+
+.home-balance-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.home-balance-label {
+  display: block;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+}
+
+.home-balance-amount {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+  letter-spacing: -1px;
+  overflow-wrap: anywhere;
+}
+
+.balance-visibility-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.balance-visibility-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.04);
+}
+
+.home-balance-divider {
+  height: 1px;
+  margin: 25px 0;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.home-balance-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.home-balance-bottom .home-balance-label {
+  margin-bottom: 8px;
+}
+
+.home-balance-bottom strong {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.home-balance-action {
+  padding: 12px 18px;
+  color: #171d36;
+  background: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.home-balance-action:hover {
+  opacity: 0.88;
+}
+
+@media (max-width: 600px) {
+  .home-balance-section {
+    margin: 22px auto 30px;
+  }
+
+  .home-balance-card {
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+
+  .home-balance-bottom {
+    align-items: flex-start;
+  }
+
+  .home-balance-action {
+    width: 100%;
+  }
+}

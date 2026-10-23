@@ -1,8 +1,8 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Home.css";
 
+import "./Home.css";
 import MarketTabs from "../components/market/MarketTabs";
 import InfoCards from "../components/Info/InfoCards";
 import FAQ from "../components/faq/FAQ";
@@ -11,20 +11,20 @@ export default function Home() {
   const navigate = useNavigate();
   const [showBalance, setShowBalance] = useState(true);
 
-  // Replace this with the user's actual portfolio balance
-  const totalBalance = 0.00;
+  // Placeholder until connected to the user's actual portfolio data
+  const totalBalance = 0;
 
-  const formatBalance = (amount) =>
-    showBalance
-      ? `$${amount.toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`
-      : "••••••";
+  const formattedBalance = showBalance
+    ? `$${totalBalance.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`
+    : "••••••";
 
   return (
     <>
-      <div className="home">
+      {/* HERO SECTION */}
+      <section className="home">
         <div className="hero">
           <h1>
             Trade Crypto <br />
@@ -40,9 +40,9 @@ export default function Home() {
             Buy Crypto
           </button>
         </div>
-      </div>
+      </section>
 
-      {/* PORTFOLIO BALANCE CARD */}
+      {/* PORTFOLIO BALANCE */}
       <section className="home-balance-section">
         <div className="home-balance-card">
           <div className="home-balance-top">
@@ -51,9 +51,9 @@ export default function Home() {
                 Total Portfolio Balance
               </span>
 
-              <div className="home-balance-amount">
-                {formatBalance(totalBalance)}
-              </div>
+              <h2 className="home-balance-amount">
+                {formattedBalance}
+              </h2>
             </div>
 
             <button
@@ -65,9 +65,9 @@ export default function Home() {
             >
               {showBalance ? (
                 <svg
+                  width="23"
+                  height="23"
                   viewBox="0 0 24 24"
-                  width="22"
-                  height="22"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.8"
@@ -80,9 +80,9 @@ export default function Home() {
                 </svg>
               ) : (
                 <svg
+                  width="23"
+                  height="23"
                   viewBox="0 0 24 24"
-                  width="22"
-                  height="22"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.8"
@@ -103,8 +103,11 @@ export default function Home() {
 
           <div className="home-balance-bottom">
             <div>
-              <span className="home-balance-label">Available Balance</span>
-              <strong>{formatBalance(totalBalance)}</strong>
+              <span className="home-balance-label">
+                Available Balance
+              </span>
+
+              <strong>{formattedBalance}</strong>
             </div>
 
             <button
@@ -118,9 +121,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* MARKET TABS */}
+      {/* MARKET SECTION */}
       <MarketTabs />
 
+      {/* INFORMATION AND FAQ */}
       <InfoCards />
       <FAQ />
     </>
